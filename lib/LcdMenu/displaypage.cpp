@@ -25,6 +25,7 @@ void DisplayPage::init(TFT_eSPI *tft, uint16_t fillColor)
 {
     _tft = tft;
     _fillColor = fillColor;
+    _customDrawFunction = NULL;
 }
 
 #define BLACK_SPOT
@@ -109,9 +110,15 @@ void DisplayPage::drawButtons()
     }
 }
 
-void DisplayPage::draw() {
-    serialPrintValues();
-    _tft->fillScreen(_fillColor);
+void DisplayPage::draw(bool wipeScreen) {
+    
+    if (wipeScreen)
+        _tft->fillScreen(_fillColor);
+    
+    if (_customDrawFunction)
+        _customDrawFunction(this);
+
+    _tft->setFreeFont(&FreeMonoBold9pt7b); 
     drawButtons();
 }
 
@@ -136,12 +143,6 @@ int DisplayPage::getPressedButtonIndex(uint16_t x, uint16_t y){
         else {
             btn->press(false);
         }
-
-        //todo: should this been done in drawButtonsState?  This is faster but does that matter?
-        if (btn->justPressed())
-            btn->draw(true);
-        else if (btn->justReleased())
-            btn->draw(false);
     }
     return index;
 }

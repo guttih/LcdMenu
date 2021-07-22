@@ -33,12 +33,12 @@ void DisplayMenu::init(TFT_eSPI *tft, uint16_t fillColor)
     _visablePage = -1;
 }
 
-void DisplayMenu::drawPage(int index)
+void DisplayMenu::drawPage(int index, bool wipeScreen)
 {
 
     _visablePage = index;
     DisplayPage *pPage = getPage(_visablePage);
-    pPage->draw();
+    pPage->draw(wipeScreen);
 }
 
 DisplayPage *DisplayMenu::getVisablePage()
@@ -94,7 +94,7 @@ void DisplayMenu::update()
         if (pCurrentPage)
         {
             int buttonIndex = pCurrentPage->getPressedButtonIndex(_touch.x, _touch.y);
-            //pCurrentPage->drawButtons();
+            pCurrentPage->drawButtonsState();
             
         }
     }

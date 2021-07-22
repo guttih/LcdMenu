@@ -11,13 +11,17 @@
 #include "displaybutton.h"
 #include "displaybuttonlist.h"
 
+
+typedef void (*DisplayPageCustomDrawFunction) (void *ptr);
+//typedef void (*DisplayPageCustomDrawFunction) (DisplayPage page); //todo:: hwo to make this compile
+
 class DisplayPage
 {
 private:
     TFT_eSPI *_tft;
     uint16_t _fillColor;
-
     DisplayButtonList buttons;
+    DisplayPageCustomDrawFunction _customDrawFunction;
     void init(TFT_eSPI *tft, uint16_t fillColor);
     bool addButton(const  DisplayButton button);
 
@@ -29,7 +33,7 @@ public:
      */
     DisplayPage(const DisplayPage &page);
 
-    DisplayPage(TFT_eSPI *tft, uint16_t fillColor);
+    DisplayPage(TFT_eSPI *tft, uint16_t fillColor = TFT_BLACK);
     /**
      * @brief draws all items on the page
      * 
@@ -74,12 +78,42 @@ public:
 
     int buttonCount() { return buttons.count(); } ;
     void drawButtons();
-    void draw();
+    void draw(bool wipeScreen = true);
 
     int getPressedButtonIndex(uint16_t x, uint16_t y);
     void drawButtonsState();
-
     void serialPrintValues(unsigned int margin = 0);
+
+    TFT_eSPI *getTft() { return _tft; };
+
+    /**
+     * @brief Provies a user defined function to  be called every time the page should be drawn.
+     * 
+     * @code .cpp
+     * 
+     * // When function draw() is called it will call this function and print out to serial most of the page values.
+     * 
+     * TFT_eSPI tft = TFT_eSPI();
+     * void myCustomPageDrawFunc(void *ptrToPage)
+     * {
+     *     DisplayPage *pPage = (DisplayPage *)ptrToPage;
+     *     pPage->serialPrintValues();
+     * }
+     * 
+     * void ssetup()
+     * {
+     *     DisplayPage page1(&tft);
+     *     page1.addCustomDrawFunction(myCustomPageDrawFunc);
+     *     page1.addButton(100, 120, 136, 40, TFT_RED, TFT_PURPLE, TFT_WHITE, 1, "Hello world");
+     *     page1.draw();
+     * }
+     * @endcode 
+     * 
+     * @param pCustomDrawFunction a pointer to a function which takes one void * parameter
+     */
+    void addCustomDrawFunction(DisplayPageCustomDrawFunction pCustomDrawFunction) {
+        _customDrawFunction = pCustomDrawFunction;
+    }
 };
 
 

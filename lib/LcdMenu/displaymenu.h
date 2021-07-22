@@ -31,7 +31,7 @@ public:
     DisplayPage * addPage(uint16_t fillColor);
     DisplayPage * addPage(DisplayPage page);
     DisplayPage *getPage(int index);
-    void drawPage(int index);
+    void drawPage(int index, bool wipeScreen=true);
     DisplayPage *getVisablePage();
     DisplayPage*  getLastPage();
     void update();
