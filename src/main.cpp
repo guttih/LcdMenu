@@ -9,30 +9,24 @@
 
 #include <TFT_eSPI.h> // Hardware-specific library
 
-#define CALIBRATION_FILE "/TouchCalData3"
-
-#define REPEAT_CAL false
-
-TFT_eSPI tft = TFT_eSPI();
+#include "globals.h"
 
 void touch_calibrate();
 void setupMenu();
-DisplayMenu menu = DisplayMenu(&tft);
 
-void setup() {
-  
+#include "menusetup.h"
+
+void setup()
+{
   Serial.begin(115200);
 
-  //touch_calibrate();
-  tft.fillScreen(TFT_RED);
+  touch_calibrate();
   setupMenu();
-  delay(4000);
-  menu.showPage(0);
 }
 
-void loop() {
-  uint16_t t_x = 0, t_y = 0; // To store the touch coordinates
-
+void loop()
+{
+  menu.update();
 }
 
 void touch_calibrate()
@@ -41,14 +35,16 @@ void touch_calibrate()
   uint8_t calDataOK = 0;
 
   // check file system exists
-  if (!SPIFFS.begin()) {
+  if (!SPIFFS.begin())
+  {
     Serial.println("Formating file system");
     SPIFFS.format();
     SPIFFS.begin();
   }
 
   // check if calibration file exists and size is correct
-  if (SPIFFS.exists(CALIBRATION_FILE)) {
+  if (SPIFFS.exists(CALIBRATION_FILE))
+  {
     if (REPEAT_CAL)
     {
       // Delete if we want to re-calibrate
@@ -57,7 +53,8 @@ void touch_calibrate()
     else
     {
       File f = SPIFFS.open(CALIBRATION_FILE, "r");
-      if (f) {
+      if (f)
+      {
         if (f.readBytes((char *)calData, 14) == 14)
           calDataOK = 1;
         f.close();
@@ -65,10 +62,13 @@ void touch_calibrate()
     }
   }
 
-  if (calDataOK && !REPEAT_CAL) {
+  if (calDataOK && !REPEAT_CAL)
+  {
     // calibration data valid
     tft.setTouch(calData);
-  } else {
+  }
+  else
+  {
     // data not valid so recalibrate
     tft.fillScreen(TFT_BLACK);
     tft.setCursor(20, 0);
@@ -81,7 +81,8 @@ void touch_calibrate()
     tft.setTextFont(1);
     tft.println();
 
-    if (REPEAT_CAL) {
+    if (REPEAT_CAL)
+    {
       tft.setTextColor(TFT_RED, TFT_BLACK);
       tft.println("Set REPEAT_CAL to false to stop this running again!");
     }
@@ -93,15 +94,10 @@ void touch_calibrate()
 
     // store data
     File f = SPIFFS.open(CALIBRATION_FILE, "w");
-    if (f) {
+    if (f)
+    {
       f.write((const unsigned char *)calData, 14);
       f.close();
     }
   }
-}
-
-void setupMenu() {
-  Serial.println("SetupMenu");
-  tft.setCursor(50, 100);
-  tft.println("SetupMenu!");
 }

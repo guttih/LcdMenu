@@ -18,6 +18,16 @@ private:
 public:
     bool add(DisplayButton page);
     
+    /**
+     * @brief The count of items in the list
+     * 
+     * @return int 
+     */
+    int count() { return size(); };
+
+    
+    ~DisplayButtonList() { destory(); }
+    
 };
 
 #endif
