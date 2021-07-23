@@ -3,11 +3,12 @@
 #ifndef _LINKEDLIST_h
 #define _LINKEDLIST_h
 
-#if defined(ARDUINO) && ARDUINO >= 100
-	#include "arduino.h"
-#else
-	#include "WProgram.h"
-#endif
+// #if defined(ARDUINO) && ARDUINO >= 100
+// 	#include "arduino.h"
+// #else
+// 	#include "WProgram.h"
+// #endif
+#include <Arduino.h>
 //INSERT_FROM_HERE
 #ifndef CODE_BLOCK_LinkedList
 
@@ -100,6 +101,7 @@ public:
     */
     virtual T get(int index);
 
+    virtual int indexOf(T &pNode);
     /*
     Clear the entire array
     */
@@ -170,6 +172,36 @@ ListNode<T>* LinkedList<T>::getNode(int index) {
 
     return NULL;
 }
+
+template<typename T>
+int LinkedList<T>::indexOf(T &data) {
+    
+
+    int pos = 0;
+    ListNode<T>* current = root;
+
+     while ( (pos < _size) && current) {
+         if (current->data == data)
+            return pos;
+        current = current->next;
+
+        pos++;
+    }
+
+    return -1;
+
+    // T p;
+    // for (int i = 0; i < size(); i++) {
+    //     p = get(i);
+    //     if (p == data)
+    //         return i;
+    // }
+    // return -1;
+
+}
+
+
+
 
 template<typename T>
 int LinkedList<T>::size() {

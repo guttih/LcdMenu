@@ -5,7 +5,7 @@ DisplayPage::DisplayPage(const DisplayPage &page)
 {
 
     DisplayPage &ref = const_cast<DisplayPage &>(page);
-    init(ref._tft, ref._fillColor);
+    init(ref._tft, ref._pMenu, ref._fillColor);
     int buttonCount = ref.buttonCount();
     DisplayButton *pBtn;
 
@@ -16,16 +16,17 @@ DisplayPage::DisplayPage(const DisplayPage &page)
     }
 }
 
-DisplayPage::DisplayPage(TFT_eSPI *tft, uint16_t fillColor)
+DisplayPage::DisplayPage(TFT_eSPI *tft, DisplayMenu *menu, uint16_t fillColor)
 {
-    init(tft, fillColor);
+    init(tft, menu, fillColor);
 }
 
-void DisplayPage::init(TFT_eSPI *tft, uint16_t fillColor)
+void DisplayPage::init(TFT_eSPI *tft, DisplayMenu *menu, uint16_t fillColor)
 {
     _tft = tft;
     _fillColor = fillColor;
     _customDrawFunction = NULL;
+    _pMenu = menu;
 }
 
 #define BLACK_SPOT
@@ -64,7 +65,7 @@ bool DisplayPage::addButton(const DisplayButton button)
     return buttons.add(button);
 }
 
-bool DisplayPage::addButton(int16_t x, 
+bool DisplayPage::addPageButton(int16_t x, 
                             int16_t y, 
                             uint16_t width,
                             uint16_t height,
@@ -72,10 +73,30 @@ bool DisplayPage::addButton(int16_t x,
                             uint16_t fillColor,
                             uint16_t textColor,
                             uint8_t textsize, 
-                            const char *text)
+                            const char *text,
+                            DisplayPage *pPageToOpen
+                            )
 {
 
-    DisplayButton btnToAdd(getDisplay(), x, y, width, height, outlineColor, fillColor, textColor, textsize, text);
+    DisplayButton btnToAdd(getDisplay(), x, y, width, height, outlineColor, fillColor, textColor, textsize, text, DisplayButtonType::OPEN_PAGE, this, pPageToOpen);
+    return buttons.add(btnToAdd);
+}
+
+bool DisplayPage::addIncrementButton(   int16_t x,
+                                        int16_t y,
+                                        uint16_t width,
+                                        uint16_t height,
+                                        uint16_t outlineColor,
+                                        uint16_t fillColor,
+                                        uint16_t textColor,
+                                        uint8_t textsize, 
+                                        const char *text,
+                                        double *pLinkedValue,
+                                        double incrementValue
+                ) 
+{
+
+    DisplayButton btnToAdd(getDisplay(), x, y, width, height, outlineColor, fillColor, textColor, textsize, text, DisplayButtonType::INCREMENT_VALUE, this, pLinkedValue, incrementValue);
     return buttons.add(btnToAdd);
 }
 
@@ -127,26 +148,26 @@ DisplayButton *DisplayPage::getButton(int buttonIndex)
     return buttons.get(buttonIndex);
 }
 
-int DisplayPage::getPressedButtonIndex(uint16_t x, uint16_t y){
+DisplayButton *DisplayPage::getPressedButton(uint16_t x, uint16_t y){
     
     int buttonCount = this->buttonCount();
-    int index = -1;
+    DisplayButton *pressedBtn = NULL;
     for (int i = buttonCount-1; i > -1; i--)
     {
         DisplayButton *btn = buttons.get(i);
 
-        if (btn->contains(x, y) && index == -1) {
-            //checking index == -1 to allow only last button added to be pressed
-            index = i;
+        if (btn->contains(x, y)) {
+            
+             if (pressedBtn == NULL)
+                pressedBtn = btn; //only return last button added
             btn->press(true);
         } 
         else {
             btn->press(false);
         }
     }
-    return index;
+    return pressedBtn;
 }
-
 
 // todo:remove is this function needed???
 void DisplayPage::drawButtonsState() { 

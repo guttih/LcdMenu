@@ -1,18 +1,44 @@
 #include "displaybutton.h"
+#include "displaymenu.h"
 
-DisplayButton::DisplayButton(TFT_eSPI *tft,
-                             int16_t x,
-                             int16_t y,
-                             uint16_t width,
-                             uint16_t height,
-                             uint16_t outlineColor,
-                             uint16_t fillColor,
-                             uint16_t textColor,
-                             uint8_t textsize, 
-                             const char *text)
+DisplayButton::DisplayButton(   TFT_eSPI *tft,
+                                int16_t x,
+                                int16_t y,
+                                uint16_t width,
+                                uint16_t height,
+                                uint16_t outlineColor,
+                                uint16_t fillColor,
+                                uint16_t textColor,
+                                uint8_t textsize, 
+                                const char *text,
+                                DisplayButtonType type,
+                                DisplayPage *page,
+                                DisplayPage *pPageToOpen
+                                )
 {
 
-    init(tft, x, y, width, height, outlineColor, fillColor, textColor, textsize, text);
+    init(tft, x, y, width, height, outlineColor, fillColor, textColor, textsize, text, type, page,  NULL, 0, pPageToOpen);
+}
+
+
+DisplayButton::DisplayButton(   TFT_eSPI *tft,
+                                int16_t x,
+                                int16_t y,
+                                uint16_t width,
+                                uint16_t height,
+                                uint16_t outlineColor,
+                                uint16_t fillColor,
+                                uint16_t textColor,
+                                uint8_t textsize, 
+                                const char *text,
+                                DisplayButtonType type,
+                                DisplayPage *page,
+                                double *pLinkedValue,
+                                double incrementValue
+                                )
+{
+
+    init(tft, x, y, width, height, outlineColor, fillColor, textColor, textsize, text, type, page, pLinkedValue, incrementValue, NULL);
 }
 
 // Copy constructor
@@ -21,7 +47,9 @@ DisplayButton::DisplayButton(const DisplayButton &button)
     init(button._values.tft, button._values.x, button._values.y,
          button._values.width, button._values.height, button._values.outlineColor,
          button._values.fillColor, button._values.textColor,
-         button._values.textsize, button._values.text.c_str());
+         button._values.textsize, button._values.text.c_str(), 
+         button._values.type, button._values.pPage,
+        button._values.pLinkedValue, button._values.incrementValue, button._values.pPageToOpen);
 }
 
 void DisplayButton::serialPrintValues(unsigned int margin)
@@ -52,7 +80,13 @@ void DisplayButton::init(   TFT_eSPI *tft,
                             uint16_t fillColor,
                             uint16_t textColor,
                             uint8_t textsize,
-                            const char *text)
+                            const char *text, 
+                            DisplayButtonType type,
+                            DisplayPage *page,
+                            double *pLinkedValue,
+                            double incrementValue,
+                            DisplayPage *pPageToOpen
+                            )
 {
 
     _values.tft = tft;
@@ -64,7 +98,12 @@ void DisplayButton::init(   TFT_eSPI *tft,
     _values.fillColor = fillColor;
     _values.textColor = textColor;
     _values.textsize = textsize;
-    _values.text = text;
+    _values.text = text,
+    _values.type = type;
+    _values.pPage = page;
+    _values.pLinkedValue = pLinkedValue;
+    _values.incrementValue = incrementValue;
+    _values.pPageToOpen = pPageToOpen;
 
     //defaults
     _values.radius = min(width, height) / 6; // Corner radius
@@ -129,4 +168,38 @@ bool DisplayButton::justPressed()  {
 }
 bool DisplayButton::justReleased() { 
     return (!_currentState && _lastState); 
+}
+
+bool DisplayButton::executeCommand()
+{
+
+    switch (_values.type)
+    {
+    case OPEN_PAGE:
+        Serial.println("OPEN_PAGE");
+        if (_values.pPageToOpen)
+        {
+            Serial.println("if (_values.pPageToOpen)");
+            DisplayMenu *pMenu = _values.pPageToOpen->getMenu();
+            if (pMenu)
+                pMenu->drawPage(_values.pPageToOpen, true);
+            else
+                Serial.println("No menu");
+            return true;
+        }
+        break;
+
+    case INCREMENT_VALUE:
+        if (_values.pLinkedValue && _values.incrementValue)
+        {
+
+            *_values.pLinkedValue += _values.incrementValue;
+            if (_values.pPage)
+                _values.pPage->draw(false);
+            return true;
+        }
+
+        break;
+    }
+    return false;
 }

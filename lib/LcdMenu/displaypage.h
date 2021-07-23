@@ -11,6 +11,8 @@
 #include "displaybutton.h"
 #include "displaybuttonlist.h"
 
+class DisplayMenu;
+
 
 typedef void (*DisplayPageCustomDrawFunction) (void *ptr);
 //typedef void (*DisplayPageCustomDrawFunction) (DisplayPage page); //todo:: hwo to make this compile
@@ -19,10 +21,11 @@ class DisplayPage
 {
 private:
     TFT_eSPI *_tft;
+    DisplayMenu *_pMenu;
     uint16_t _fillColor;
     DisplayButtonList buttons;
     DisplayPageCustomDrawFunction _customDrawFunction;
-    void init(TFT_eSPI *tft, uint16_t fillColor);
+    void init(TFT_eSPI *tft, DisplayMenu *menu, uint16_t fillColor);
     bool addButton(const  DisplayButton button);
 
 public:
@@ -33,7 +36,7 @@ public:
      */
     DisplayPage(const DisplayPage &page);
 
-    DisplayPage(TFT_eSPI *tft, uint16_t fillColor = TFT_BLACK);
+    DisplayPage(TFT_eSPI *tft, DisplayMenu *menu, uint16_t fillColor = TFT_BLACK);
     /**
      * @brief draws all items on the page
      * 
@@ -42,7 +45,7 @@ public:
     TFT_eSPI *getDisplay() { return _tft; }
 
     /**
-     * @brief Adds a new button to the page
+     * @brief Adds a new increment button to the page
      * 
      * @param x Button upper left corner, x coordinate
      * @param y Button upper left corner, y coordinate
@@ -51,12 +54,14 @@ public:
      * @param outlineColor Color of the line surrounding the button
      * @param fillColor Button color
      * @param textColor Button text color
-     * @param caption Button text
-     * @param textsize Button text multiplier size (1.1 is 10% bigger than normal).
+     * @param textsize Button text multiplier size (2 is 100% bigger than normal).
+     * @param text Button text
+     * @param type the button type
+     * @param page page the button belongs to
      * @return true if button was added
      * @return false if the button was NOT added to the page.
      */
-    bool addButton( int16_t x, 
+    bool addPageButton( int16_t x, 
                     int16_t y, 
                     uint16_t width,
                     uint16_t height,
@@ -64,8 +69,39 @@ public:
                     uint16_t fillColor,
                     uint16_t textColor,
                     uint8_t textsize, 
-                    const char *text);
-    
+                    const char *text,
+                    DisplayPage *pPageToOpen
+                    );
+
+    /**
+     * @brief Adds a new increment button to the page
+     * 
+     * @param x Button upper left corner, x coordinate
+     * @param y Button upper left corner, y coordinate
+     * @param width Button width
+     * @param height Button height
+     * @param outlineColor Color of the line surrounding the button
+     * @param fillColor Button color
+     * @param textColor Button text color
+     * @param textsize Button text multiplier size (2 is 100% bigger than normal).
+     * @param text Button text
+     * @param pLinkedValue value this button is suppose to change
+     * @param incrementValue how munch should be value be incremented in each press
+     * @return true if button was added
+     * @return false if the button was NOT added to the page.
+     */
+    bool addIncrementButton(    int16_t x,
+                                int16_t y,
+                                uint16_t width,
+                                uint16_t height,
+                                uint16_t outlineColor,
+                                uint16_t fillColor,
+                                uint16_t textColor,
+                                uint8_t textsize, 
+                                const char *text,
+                                double *pLinkedValue,
+                                double incrementValue
+                );
 
     /**
      * @brief Get a pointer to a specific button stored in the page.
@@ -80,11 +116,14 @@ public:
     void drawButtons();
     void draw(bool wipeScreen = true);
 
-    int getPressedButtonIndex(uint16_t x, uint16_t y);
+    DisplayButton *getPressedButton(uint16_t x, uint16_t y);
     void drawButtonsState();
     void serialPrintValues(unsigned int margin = 0);
 
     TFT_eSPI *getTft() { return _tft; };
+    
+    DisplayMenu *getMenu() { return _pMenu; };
+    uint16_t getFillColor() { return _fillColor; };
 
     /**
      * @brief Provies a user defined function to  be called every time the page should be drawn.
@@ -114,6 +153,7 @@ public:
     void addCustomDrawFunction(DisplayPageCustomDrawFunction pCustomDrawFunction) {
         _customDrawFunction = pCustomDrawFunction;
     }
+
 };
 
 

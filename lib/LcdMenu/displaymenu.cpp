@@ -41,6 +41,13 @@ void DisplayMenu::drawPage(int index, bool wipeScreen)
     pPage->draw(wipeScreen);
 }
 
+void DisplayMenu::drawPage(DisplayPage *pPage, bool wipeScreen)
+{
+
+    int index = pages.indexOf(pPage);
+    drawPage(index, wipeScreen);
+}
+
 DisplayPage *DisplayMenu::getVisablePage()
 {
 
@@ -63,7 +70,7 @@ DisplayPage * DisplayMenu::addPage()
 
 DisplayPage * DisplayMenu::addPage(uint16_t fillColor)
 {
-     DisplayPage page(_tft, fillColor);
+     DisplayPage page(_tft, this, fillColor);
     return pages.add(page)? getLastPage() : NULL;
 }
 
@@ -93,8 +100,12 @@ void DisplayMenu::update()
         DisplayPage *pCurrentPage = getVisablePage();
         if (pCurrentPage)
         {
-            int buttonIndex = pCurrentPage->getPressedButtonIndex(_touch.x, _touch.y);
+            DisplayButton *btn= pCurrentPage->getPressedButton(_touch.x, _touch.y);
             pCurrentPage->drawButtonsState();
+            if (btn) {
+                btn->executeCommand();
+                delay(30);
+            }
             
         }
     }

@@ -19,12 +19,14 @@ struct TOUCHED_STRUCT {
 class DisplayMenu
 {
 private:
+    TFT_eSPI *_tft;
+    int _visablePage;
     uint16_t _fillColor;  //default fill color for pages
     TOUCHED_STRUCT _touch;
-    int _visablePage;
-    TFT_eSPI *_tft;
     DisplayPageList pages;
+
     void init(TFT_eSPI *tft, uint16_t fillColor);
+    
 public:
     DisplayMenu(TFT_eSPI *tft, uint16_t fillColor = TFT_BLACK);
     DisplayPage * addPage();
@@ -32,6 +34,7 @@ public:
     DisplayPage * addPage(DisplayPage page);
     DisplayPage *getPage(int index);
     void drawPage(int index, bool wipeScreen=true);
+    void drawPage(DisplayPage *pPage, bool wipeScreen=true);
     DisplayPage *getVisablePage();
     DisplayPage*  getLastPage();
     void update();

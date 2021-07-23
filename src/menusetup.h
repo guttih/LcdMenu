@@ -33,37 +33,47 @@ void addPageMenu(){
     const uint16_t TFT_BUTTON_FILL = tft.color565(48, 73, 47);
     const uint16_t TFT_BUTTON_TEXT = TFT_GOLD;//tft.color24to16(0x00FFFF);
 
-    pPage->addButton(x, buttonMargin, buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Button nr 1");
-    pPage->addButton(x, buttonMargin+1 * (buttonMargin+buttonHeight), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Button nr 2");
-    pPage->addButton(x, buttonMargin+2 * (buttonMargin+buttonHeight), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Button nr 3");
-    
-    
+    pPage->addPageButton(x, buttonMargin, buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Valves",  menu.getPage(0));
+    //pPage->addButton(x, buttonMargin+1 * (buttonMargin+buttonHeight), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Button nr 2");
+    //pPage->addButton(x, buttonMargin+2 * (buttonMargin+buttonHeight), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Button nr 3");
 }
 
 void pageValvesCustomDraw(void *pagePtr) {
-    DisplayPage *pPage = (DisplayPage*)pagePtr;
     
-    DisplayPage page(&tft);
+    DisplayPage * pPage = (DisplayPage *)pagePtr;
+
+    if (values.coldValveFlow < 0) values.coldValveFlow = 0;
+    if (values.coldValveFlow > 100) values.coldValveFlow = 100;
+    if (values.hotValveFlow < 0) values.hotValveFlow = 0;
+    if (values.hotValveFlow > 100) values.hotValveFlow = 100;
+    tft.setFreeFont(&FreeSans12pt7b);
+
     int16_t screenXCenter = tft.width()/2;
 
-    tft.setFreeFont(&FreeSans12pt7b);
+    tft.setTextDatum(TL_DATUM);
 
     tft.setTextColor(TFT_CYAN);
     tft.drawString("Cold", 36, 40);
-    tft.drawString("78.4%", 35, 70);
 
+    int32_t h=20, w=100, x = 20, y  =70;
+    tft.fillRect(x,y, w, h, pPage->getFillColor());
+    tft.drawString((String(values.coldValveFlow, 2))+"%", x, y);
+
+    
     tft.setTextColor(tft.color24to16(0xfb745b));
     tft.drawString("Hot", 36+208, 40);
-    tft.drawString("12.7%", 35+200, 70);
+
+    x = 220, y  =70;
+    tft.fillRect(x, y, w, h, pPage->getFillColor());
+    tft.drawString((String(values.hotValveFlow, 2))+"%", x, y);
 
     tft.setTextColor(TFT_GOLD);
-    
     tft.setTextDatum(C_BASELINE);
     tft.drawString("24.87°", screenXCenter, 220);
     
     tft.setFreeFont(&FreeSans9pt7b);
     tft.drawString("Temperature", screenXCenter, 200);
-    //tft.drawString("Temperature", 10+100, 160);
+
 }
 
 void addValve(DisplayPage *pPage, bool hotValve) {
@@ -77,13 +87,16 @@ void addValve(DisplayPage *pPage, bool hotValve) {
     const uint16_t TFT_BUTTON_OUTLINE = tft.color565(115, 149, 125);
     const uint16_t TFT_BUTTON_FILL = tft.color565(48, 73, 47);
     const uint16_t TFT_BUTTON_TEXT = TFT_GOLD;//tft.color24to16(0x00FFFF);
-    int count = -1;
-    pPage->addButton( buttonMarginX + ((++count % 2) * (buttonPaddingX + buttonWidth) ) + x, buttonMarginY+ (count % 3) * (buttonHeight + buttonPaddingY), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "<");
-    pPage->addButton( buttonMarginX + ((++count % 2) * (buttonPaddingX + buttonWidth) ) + x, buttonMarginY+ (count % 3) * (buttonHeight + buttonPaddingY), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, ">>");
-    pPage->addButton( buttonMarginX + ((++count % 2) * (buttonPaddingX + buttonWidth) ) + x, buttonMarginY+ (count % 3) * (buttonHeight + buttonPaddingY), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "<<<");
-    pPage->addButton( buttonMarginX + ((++count % 2) * (buttonPaddingX + buttonWidth) ) + x, buttonMarginY+ (count % 3) * (buttonHeight + buttonPaddingY), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, ">");
-    pPage->addButton( buttonMarginX + ((++count % 2) * (buttonPaddingX + buttonWidth) ) + x, buttonMarginY+ (count % 3) * (buttonHeight + buttonPaddingY), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "<<");
-    pPage->addButton( buttonMarginX + ((++count % 2) * (buttonPaddingX + buttonWidth) ) + x, buttonMarginY+ (count % 3) * (buttonHeight + buttonPaddingY), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, ">>>");
+    double *pPlowValue = hotValve? &values.hotValveFlow : &values.coldValveFlow;
+    
+
+    int btnCount = -1;
+    ++btnCount; pPage->addIncrementButton( buttonMarginX + ((btnCount % 2) * (buttonPaddingX + buttonWidth) ) + x, buttonMarginY+ (btnCount % 3) * (buttonHeight + buttonPaddingY), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "<"  , pPlowValue, -0.1);
+    ++btnCount; pPage->addIncrementButton( buttonMarginX + ((btnCount % 2) * (buttonPaddingX + buttonWidth) ) + x, buttonMarginY+ (btnCount % 3) * (buttonHeight + buttonPaddingY), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, ">>" , pPlowValue, 1);
+    ++btnCount; pPage->addIncrementButton( buttonMarginX + ((btnCount % 2) * (buttonPaddingX + buttonWidth) ) + x, buttonMarginY+ (btnCount % 3) * (buttonHeight + buttonPaddingY), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "<<<", pPlowValue, -10);
+    ++btnCount; pPage->addIncrementButton( buttonMarginX + ((btnCount % 2) * (buttonPaddingX + buttonWidth) ) + x, buttonMarginY+ (btnCount % 3) * (buttonHeight + buttonPaddingY), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, ">"  , pPlowValue, 0.1);
+    ++btnCount; pPage->addIncrementButton( buttonMarginX + ((btnCount % 2) * (buttonPaddingX + buttonWidth) ) + x, buttonMarginY+ (btnCount % 3) * (buttonHeight + buttonPaddingY), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "<<" , pPlowValue, -1);
+    ++btnCount; pPage->addIncrementButton( buttonMarginX + ((btnCount % 2) * (buttonPaddingX + buttonWidth) ) + x, buttonMarginY+ (btnCount % 3) * (buttonHeight + buttonPaddingY), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, ">>>", pPlowValue, 10);
 }
 
 void addPageValves(){
@@ -97,30 +110,12 @@ void addPageValves(){
     
     addValve(pPage, false);
     addValve(pPage, true);
-    // const int buttonWidth = 42;
-    // const int buttonHeight = 39;
-    // const int buttonMarginX = 10;
-    // const int buttonMarginY = 100;
-    // const int buttonPaddingX = 3;
-    // const int buttonPaddingY = 3;
-    // const int x = 10;
-    // const uint16_t TFT_BUTTON_OUTLINE = tft.color565(115, 149, 125);
-    // const uint16_t TFT_BUTTON_FILL = tft.color565(48, 73, 47);
-    // const uint16_t TFT_BUTTON_TEXT = TFT_GOLD;//tft.color24to16(0x00FFFF);
-    // int count = -1;
-    // pPage->addButton( buttonMarginX + ((++count % 2) * (buttonPaddingX + buttonWidth) ) + x, buttonMarginY+ (count % 3) * (buttonHeight + buttonPaddingY), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "<");
-    // pPage->addButton( buttonMarginX + ((++count % 2) * (buttonPaddingX + buttonWidth) ) + x, buttonMarginY+ (count % 3) * (buttonHeight + buttonPaddingY), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, ">>");
-    // pPage->addButton( buttonMarginX + ((++count % 2) * (buttonPaddingX + buttonWidth) ) + x, buttonMarginY+ (count % 3) * (buttonHeight + buttonPaddingY), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "<<<");
-    // pPage->addButton( buttonMarginX + ((++count % 2) * (buttonPaddingX + buttonWidth) ) + x, buttonMarginY+ (count % 3) * (buttonHeight + buttonPaddingY), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, ">");
-    // pPage->addButton( buttonMarginX + ((++count % 2) * (buttonPaddingX + buttonWidth) ) + x, buttonMarginY+ (count % 3) * (buttonHeight + buttonPaddingY), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "<<");
-    // pPage->addButton( buttonMarginX + ((++count % 2) * (buttonPaddingX + buttonWidth) ) + x, buttonMarginY+ (count % 3) * (buttonHeight + buttonPaddingY), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, ">>>");
-    
 }
 
 void setupMenu()
 {
-    addPageMenu();
     addPageValves();
+    addPageMenu();
     menu.drawPage(1);
 }
 

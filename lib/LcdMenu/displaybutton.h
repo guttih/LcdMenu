@@ -10,13 +10,15 @@
 #include <TFT_eSPI.h>
 
 /**
- * @brief DisplayButton type Enumeration which holds information on what type of button it is.
+ * @brief DisplayButton type enumeration which holds information on how the button behaves when it is pressed.
  * 
  */
 enum DisplayButtonType {
-    NORMAL, 
-    INCREMENT
+    OPEN_PAGE, 
+    INCREMENT_VALUE
 };
+
+class DisplayPage;
 
 struct DISPLAY_BUTTON_VALUES {
     TFT_eSPI *tft;
@@ -32,8 +34,13 @@ struct DISPLAY_BUTTON_VALUES {
     uint8_t textsize;
     uint8_t textDatum;
     uint8_t radius;
-
     String text;
+
+    DisplayButtonType type;
+    DisplayPage *pPage;
+    double *pLinkedValue;
+    double incrementValue;
+    DisplayPage *pPageToOpen;
 }; 
 
 class DisplayButton
@@ -49,7 +56,13 @@ private:
                 uint16_t fillColor,
                 uint16_t textColor,
                 uint8_t textsize,
-                const char *text);
+                const char *text,
+                DisplayButtonType type,
+                DisplayPage *page,
+                double *pLinkedValue,
+                double incrementValue,
+                DisplayPage *pageToOpen
+                );
 public:
     bool  _currentState, 
           _lastState; 
@@ -68,8 +81,27 @@ public:
                     uint16_t fillColor,
                     uint16_t textColor,
                     uint8_t textsize,
-                    const char *text
+                    const char *text,
+                    DisplayButtonType type,
+                    DisplayPage *page,
+                    DisplayPage *pPageToOpen = NULL
                     );
+
+    DisplayButton(  TFT_eSPI *tft,
+                    int16_t x,
+                    int16_t y,
+                    uint16_t width,
+                    uint16_t height,
+                    uint16_t outlineColor,
+                    uint16_t fillColor,
+                    uint16_t textColor,
+                    uint8_t textsize, 
+                    const char *text,
+                    DisplayButtonType type,
+                    DisplayPage *page,
+                    double *pLinkedValue,
+                    double incrementValue
+                );
                     
     void draw(bool inverted=false);
     bool contains(int16_t x, int16_t y);
@@ -80,7 +112,8 @@ public:
     bool isPressed();
     bool justPressed();
     bool justReleased();
-    
+    bool executeCommand();
+    DisplayPage *getPage() { return _values.pPage; }
 };
 
 
