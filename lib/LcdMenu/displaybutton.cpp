@@ -13,11 +13,12 @@ DisplayButton::DisplayButton(   TFT_eSPI *tft,
                                 const char *text,
                                 DisplayButtonType type,
                                 DisplayPage *page,
-                                DisplayPage *pPageToOpen
+                                DisplayPage *pPageToOpen,
+                                ButtonPressedFunction buttonPressed
                                 )
 {
 
-    init(tft, x, y, width, height, outlineColor, fillColor, textColor, textsize, text, type, page,  NULL, 0, pPageToOpen);
+    init(tft, x, y, width, height, outlineColor, fillColor, textColor, textsize, text, type, page,  NULL, 0, pPageToOpen, buttonPressed);
 }
 
 
@@ -38,7 +39,7 @@ DisplayButton::DisplayButton(   TFT_eSPI *tft,
                                 )
 {
 
-    init(tft, x, y, width, height, outlineColor, fillColor, textColor, textsize, text, type, page, pLinkedValue, incrementValue, NULL);
+    init(tft, x, y, width, height, outlineColor, fillColor, textColor, textsize, text, type, page, pLinkedValue, incrementValue, NULL, NULL);
 }
 
 // Copy constructor
@@ -49,7 +50,8 @@ DisplayButton::DisplayButton(const DisplayButton &button)
          button._values.fillColor, button._values.textColor,
          button._values.textsize, button._values.text.c_str(), 
          button._values.type, button._values.pPage,
-        button._values.pLinkedValue, button._values.incrementValue, button._values.pPageToOpen);
+        button._values.pLinkedValue, button._values.incrementValue, 
+        button._values.pPageToOpen, button._values.buttonPressedFunction);
 }
 
 void DisplayButton::serialPrintValues(unsigned int margin)
@@ -85,7 +87,8 @@ void DisplayButton::init(   TFT_eSPI *tft,
                             DisplayPage *page,
                             double *pLinkedValue,
                             double incrementValue,
-                            DisplayPage *pPageToOpen
+                            DisplayPage *pPageToOpen,
+                            ButtonPressedFunction buttonPressedFunction
                             )
 {
 
@@ -110,6 +113,14 @@ void DisplayButton::init(   TFT_eSPI *tft,
     _values.textDatum = MC_DATUM;
     _values.xDatumOffset = 0;
     _values.yDatumOffset = 0;
+    _values.buttonPressedFunction = buttonPressedFunction;
+
+    _values.allowOnlyOneButtonPressedAtATime = type == OPEN_PAGE || type == RUN_FUNCTION? true: false;
+}
+
+void DisplayButton::resetPressState () {
+    _lastState = false;
+  _currentState = false;
 }
 
 void DisplayButton::draw(bool inverted)
@@ -175,16 +186,20 @@ bool DisplayButton::executeCommand()
 
     switch (_values.type)
     {
+    case RUN_FUNCTION:
+        if (_values.buttonPressedFunction)
+        {
+            _values.buttonPressedFunction(this);
+            return true;
+        }
+        break;
+
     case OPEN_PAGE:
-        Serial.println("OPEN_PAGE");
         if (_values.pPageToOpen)
         {
-            Serial.println("if (_values.pPageToOpen)");
             DisplayMenu *pMenu = _values.pPageToOpen->getMenu();
             if (pMenu)
                 pMenu->drawPage(_values.pPageToOpen, true);
-            else
-                Serial.println("No menu");
             return true;
         }
         break;

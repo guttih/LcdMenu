@@ -95,18 +95,34 @@ void DisplayMenu::update()
 
     if (_touch.pressed)
     {
-        Serial.println(String("touch.x:") + String(_touch.x) +String("touch.y:")+ String(_touch.y));
-
         DisplayPage *pCurrentPage = getVisablePage();
         if (pCurrentPage)
         {
-            DisplayButton *btn= pCurrentPage->getPressedButton(_touch.x, _touch.y);
+            DisplayButton *btn = pCurrentPage->getPressedButton(_touch.x, _touch.y);
             pCurrentPage->drawButtonsState();
-            if (btn) {
+            delay(100);
+
+            if (btn)
+            {
+                if (btn->_values.allowOnlyOneButtonPressedAtATime)
+                {
+                    do
+                    {
+                        delay(50);
+                        _touch.pressed = _tft->getTouch(&_touch.x, &_touch.y);
+                        if (!_touch.pressed)
+                        {
+                            delay(10);
+                            _touch.pressed = _tft->getTouch(&_touch.x, &_touch.y);
+                        }
+                    } while (_touch.pressed); //wait until no touch, then execute
+
+                    //make button not inverted
+                    btn->resetPressState();
+                    btn->draw();
+                }
                 btn->executeCommand();
-                delay(30);
             }
-            
         }
     }
 }

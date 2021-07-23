@@ -17,30 +17,30 @@
 #include "displaypage.h"
 #include "displaybutton.h"
 
+const uint16_t TFT_BUTTON_OUTLINE = tft.color565(115, 149, 125);
+const uint16_t TFT_BUTTON_FILL = tft.color565(48, 73, 47);
+const uint16_t TFT_BUTTON_TEXT = TFT_GOLD;
+
 void addPageMenu(){
     DisplayPage *pPage = menu.addPage();
-    if (!pPage)
-    {
-        Serial.println("Error adding page");
-        return;
-    }
     
     const int buttonWidth = 170;
     const int buttonHeight = 50;
     const int buttonMargin = 20;
     const int x = (tft.width() - buttonWidth) /2;
-    const uint16_t TFT_BUTTON_OUTLINE = tft.color565(115, 149, 125);
-    const uint16_t TFT_BUTTON_FILL = tft.color565(48, 73, 47);
-    const uint16_t TFT_BUTTON_TEXT = TFT_GOLD;//tft.color24to16(0x00FFFF);
 
     pPage->addPageButton(x, buttonMargin, buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Valves",  menu.getPage(0));
     //pPage->addButton(x, buttonMargin+1 * (buttonMargin+buttonHeight), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Button nr 2");
     //pPage->addButton(x, buttonMargin+2 * (buttonMargin+buttonHeight), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Button nr 3");
 }
 
-void pageValvesCustomDraw(void *pagePtr) {
+void addPageEditValue() {
+
+}
+
+void pageValvesCustomDraw(DisplayPage *pPage) {
     
-    DisplayPage * pPage = (DisplayPage *)pagePtr;
+    //DisplayPage * pPage = (DisplayPage *)pagePtr;
 
     if (values.coldValveFlow < 0) values.coldValveFlow = 0;
     if (values.coldValveFlow > 100) values.coldValveFlow = 100;
@@ -56,15 +56,17 @@ void pageValvesCustomDraw(void *pagePtr) {
     tft.drawString("Cold", 36, 40);
 
     int32_t h=20, w=100, x = 20, y  =70;
+    tft.drawRect(x,y, w, h, pPage->getFillColor());
     tft.fillRect(x,y, w, h, pPage->getFillColor());
     tft.drawString((String(values.coldValveFlow, 2))+"%", x, y);
 
-    
+
     tft.setTextColor(tft.color24to16(0xfb745b));
     tft.drawString("Hot", 36+208, 40);
 
     x = 220, y  =70;
-    tft.fillRect(x, y, w, h, pPage->getFillColor());
+    tft.drawRect(x,y,w,h, pPage->getFillColor());
+    tft.fillRect(x,y,w,h, pPage->getFillColor());
     tft.drawString((String(values.hotValveFlow, 2))+"%", x, y);
 
     tft.setTextColor(TFT_GOLD);
@@ -84,9 +86,6 @@ void addValve(DisplayPage *pPage, bool hotValve) {
     const int buttonPaddingX = 3;
     const int buttonPaddingY = 3;
     const int x = hotValve? 208 : 5;
-    const uint16_t TFT_BUTTON_OUTLINE = tft.color565(115, 149, 125);
-    const uint16_t TFT_BUTTON_FILL = tft.color565(48, 73, 47);
-    const uint16_t TFT_BUTTON_TEXT = TFT_GOLD;//tft.color24to16(0x00FFFF);
     double *pPlowValue = hotValve? &values.hotValveFlow : &values.coldValveFlow;
     
 
@@ -102,21 +101,27 @@ void addValve(DisplayPage *pPage, bool hotValve) {
 void addPageValves(){
     DisplayPage *pPage = menu.addPage();
     pPage->addCustomDrawFunction(pageValvesCustomDraw);
-    if (!pPage)
-    {
-        Serial.println("Error adding page");
-        return;
-    }
     
     addValve(pPage, false);
     addValve(pPage, true);
+    
+
+    
+}
+
+void print(DisplayButton *btn) {
+    Serial.print("display button: ");Serial.println(btn->_values.text);
 }
 
 void setupMenu()
 {
     addPageValves();
     addPageMenu();
+    addPageEditValue();
     menu.drawPage(1);
+    
+    menu.getPage(0)->addPageButton((tft.width() - 100) /2, 0, 100, 50, tft.color565(115, 149, 125), tft.color565(48, 73, 47), TFT_GOLD, 1, "Menu",  menu.getPage(1));
+    menu.getPage(0)->addFunctionButton((tft.width() - 100) /2, 50, 100, 50, tft.color565(115, 149, 125), tft.color565(48, 73, 47), TFT_GOLD, 1, "print", &print);
 }
 
 #endif

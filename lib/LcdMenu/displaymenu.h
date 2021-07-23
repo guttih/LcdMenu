@@ -24,6 +24,8 @@ private:
     uint16_t _fillColor;  //default fill color for pages
     TOUCHED_STRUCT _touch;
     DisplayPageList pages;
+    unsigned long myTouchTimer;
+    unsigned long myTouchDelay;
 
     void init(TFT_eSPI *tft, uint16_t fillColor);
     

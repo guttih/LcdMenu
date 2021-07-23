@@ -14,8 +14,7 @@
 class DisplayMenu;
 
 
-typedef void (*DisplayPageCustomDrawFunction) (void *ptr);
-//typedef void (*DisplayPageCustomDrawFunction) (DisplayPage page); //todo:: hwo to make this compile
+typedef void (*DisplayPageCustomDrawFunction) (DisplayPage *pPage);
 
 class DisplayPage
 {
@@ -45,7 +44,7 @@ public:
     TFT_eSPI *getDisplay() { return _tft; }
 
     /**
-     * @brief Adds a new increment button to the page
+     * @brief Adds a new button which runs a function every time it is pressed
      * 
      * @param x Button upper left corner, x coordinate
      * @param y Button upper left corner, y coordinate
@@ -56,8 +55,33 @@ public:
      * @param textColor Button text color
      * @param textsize Button text multiplier size (2 is 100% bigger than normal).
      * @param text Button text
-     * @param type the button type
-     * @param page page the button belongs to
+     * @param customDrawFunction 
+     * @return true 
+     * @return false 
+     */
+    bool addFunctionButton(int16_t x, 
+                            int16_t y, 
+                            uint16_t width,
+                            uint16_t height,
+                            uint16_t outlineColor,
+                            uint16_t fillColor,
+                            uint16_t textColor,
+                            uint8_t textsize, 
+                            const char *text,
+                            ButtonPressedFunction buttonPressedFunction); 
+    /**
+     * @brief Adds a new button which opens a given page
+     * 
+     * @param x Button upper left corner, x coordinate
+     * @param y Button upper left corner, y coordinate
+     * @param width Button width
+     * @param height Button height
+     * @param outlineColor Color of the line surrounding the button
+     * @param fillColor Button color
+     * @param textColor Button text color
+     * @param textsize Button text multiplier size (2 is 100% bigger than normal).
+     * @param text Button text
+     * @param pPageToOpen page the button belongs to
      * @return true if button was added
      * @return false if the button was NOT added to the page.
      */
@@ -130,12 +154,11 @@ public:
      * 
      * @code .cpp
      * 
-     * // When function draw() is called it will call this function and print out to serial most of the page values.
+     * When function draw() is called it will call this function and print out to serial most of the page values.
      * 
      * TFT_eSPI tft = TFT_eSPI();
-     * void myCustomPageDrawFunc(void *ptrToPage)
+     * void myCustomPageDrawFunc(DisplayPage *pPage)
      * {
-     *     DisplayPage *pPage = (DisplayPage *)ptrToPage;
      *     pPage->serialPrintValues();
      * }
      * 

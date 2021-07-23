@@ -9,11 +9,16 @@
 
 #include <TFT_eSPI.h>
 
+class DisplayButton;
+
+typedef void (*ButtonPressedFunction) (DisplayButton *ptr);
+
 /**
  * @brief DisplayButton type enumeration which holds information on how the button behaves when it is pressed.
  * 
  */
 enum DisplayButtonType {
+    RUN_FUNCTION,
     OPEN_PAGE, 
     INCREMENT_VALUE
 };
@@ -35,12 +40,14 @@ struct DISPLAY_BUTTON_VALUES {
     uint8_t textDatum;
     uint8_t radius;
     String text;
+    bool allowOnlyOneButtonPressedAtATime;
 
     DisplayButtonType type;
     DisplayPage *pPage;
     double *pLinkedValue;
     double incrementValue;
     DisplayPage *pPageToOpen;
+    ButtonPressedFunction buttonPressedFunction;
 }; 
 
 class DisplayButton
@@ -61,7 +68,8 @@ private:
                 DisplayPage *page,
                 double *pLinkedValue,
                 double incrementValue,
-                DisplayPage *pageToOpen
+                DisplayPage *pageToOpen,
+                ButtonPressedFunction buttonPressedFunction
                 );
 public:
     bool  _currentState, 
@@ -84,7 +92,8 @@ public:
                     const char *text,
                     DisplayButtonType type,
                     DisplayPage *page,
-                    DisplayPage *pPageToOpen = NULL
+                    DisplayPage *pPageToOpen,
+                    ButtonPressedFunction buttonPressed
                     );
 
     DisplayButton(  TFT_eSPI *tft,
@@ -102,7 +111,7 @@ public:
                     double *pLinkedValue,
                     double incrementValue
                 );
-                    
+    void resetPressState();         
     void draw(bool inverted=false);
     bool contains(int16_t x, int16_t y);
 

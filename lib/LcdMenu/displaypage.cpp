@@ -78,8 +78,25 @@ bool DisplayPage::addPageButton(int16_t x,
                             )
 {
 
-    DisplayButton btnToAdd(getDisplay(), x, y, width, height, outlineColor, fillColor, textColor, textsize, text, DisplayButtonType::OPEN_PAGE, this, pPageToOpen);
-    return buttons.add(btnToAdd);
+    DisplayButton pageButton(getDisplay(), x, y, width, height, outlineColor, fillColor, textColor, textsize, text, DisplayButtonType::OPEN_PAGE, this, pPageToOpen, NULL);
+    return buttons.add(pageButton);
+}
+
+bool DisplayPage::addFunctionButton(int16_t x, 
+                            int16_t y, 
+                            uint16_t width,
+                            uint16_t height,
+                            uint16_t outlineColor,
+                            uint16_t fillColor,
+                            uint16_t textColor,
+                            uint8_t textsize, 
+                            const char *text,
+                            ButtonPressedFunction buttonPressedFunction
+                            )
+{
+
+    DisplayButton functionButton(getDisplay(), x, y, width, height, outlineColor, fillColor, textColor, textsize, text, DisplayButtonType::RUN_FUNCTION, this, NULL, buttonPressedFunction);
+    return buttons.add(functionButton);
 }
 
 bool DisplayPage::addIncrementButton(   int16_t x,
@@ -96,8 +113,8 @@ bool DisplayPage::addIncrementButton(   int16_t x,
                 ) 
 {
 
-    DisplayButton btnToAdd(getDisplay(), x, y, width, height, outlineColor, fillColor, textColor, textsize, text, DisplayButtonType::INCREMENT_VALUE, this, pLinkedValue, incrementValue);
-    return buttons.add(btnToAdd);
+    DisplayButton incrementButton(getDisplay(), x, y, width, height, outlineColor, fillColor, textColor, textsize, text, DisplayButtonType::INCREMENT_VALUE, this, pLinkedValue, incrementValue);
+    return buttons.add(incrementButton);
 }
 
 void DisplayPage::serialPrintValues(unsigned int margin)
@@ -127,6 +144,7 @@ void DisplayPage::drawButtons()
     for (int i = 0; i < buttonCount; i++)
     {
         DisplayButton *btn = buttons.get(i);
+        btn->resetPressState();
         btn->draw();
     }
 }
