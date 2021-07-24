@@ -18,7 +18,7 @@ DisplayButton::DisplayButton(   TFT_eSPI *tft,
                                 )
 {
 
-    init(tft, x, y, width, height, outlineColor, fillColor, textColor, textsize, text, type, page,  NULL, 0, pPageToOpen, buttonPressed);
+    init(tft, x, y, width, height, outlineColor, fillColor, textColor, textsize, text, type, page, "",  NULL, 0, pPageToOpen, buttonPressed);
 }
 
 
@@ -39,7 +39,7 @@ DisplayButton::DisplayButton(   TFT_eSPI *tft,
                                 )
 {
 
-    init(tft, x, y, width, height, outlineColor, fillColor, textColor, textsize, text, type, page, pLinkedValue, incrementValue, NULL, NULL);
+    init(tft, x, y, width, height, outlineColor, fillColor, textColor, textsize, text, type, page, "", pLinkedValue, incrementValue, NULL, NULL);
 }
 
 // Copy constructor
@@ -50,7 +50,7 @@ DisplayButton::DisplayButton(const DisplayButton &button)
          button._values.fillColor, button._values.textColor,
          button._values.textsize, button._values.text.c_str(), 
          button._values.type, button._values.pPage,
-        button._values.pLinkedValue, button._values.incrementValue, 
+        button._values.linkedValueName, button._values.pLinkedValue, button._values.incrementValue, 
         button._values.pPageToOpen, button._values.buttonPressedFunction);
 }
 
@@ -69,6 +69,7 @@ void DisplayButton::serialPrintValues(unsigned int margin)
     Serial.print(", text:");         Serial.print(_values.text);
     Serial.print(", textsize:");     Serial.print(_values.textsize);
     Serial.print(", radius:");       Serial.print(_values.radius);
+    Serial.print(", textDatum:");    Serial.print(_values.textDatum);
     Serial.print(",tft:");           Serial.print((unsigned long)_values.tft, HEX);
     Serial.println();
 }
@@ -85,6 +86,7 @@ void DisplayButton::init(   TFT_eSPI *tft,
                             const char *text, 
                             DisplayButtonType type,
                             DisplayPage *page,
+                            String linkedValueName,
                             double *pLinkedValue,
                             double incrementValue,
                             DisplayPage *pPageToOpen,
@@ -104,6 +106,7 @@ void DisplayButton::init(   TFT_eSPI *tft,
     _values.text = text,
     _values.type = type;
     _values.pPage = page;
+    _values.linkedValueName = linkedValueName;
     _values.pLinkedValue = pLinkedValue;
     _values.incrementValue = incrementValue;
     _values.pPageToOpen = pPageToOpen;
@@ -112,7 +115,7 @@ void DisplayButton::init(   TFT_eSPI *tft,
     _values.radius = min(width, height) / 6; // Corner radius
     _values.textDatum = MC_DATUM;
     _values.xDatumOffset = 0;
-    _values.yDatumOffset = 0;
+    _values.yDatumOffset = 2;
     _values.buttonPressedFunction = buttonPressedFunction;
 
     _values.allowOnlyOneButtonPressedAtATime = type == OPEN_PAGE || type == RUN_FUNCTION? true: false;
@@ -199,7 +202,7 @@ bool DisplayButton::executeCommand()
         {
             DisplayMenu *pMenu = _values.pPageToOpen->getMenu();
             if (pMenu)
-                pMenu->drawPage(_values.pPageToOpen, true);
+                pMenu->showPage(_values.pPageToOpen);
             return true;
         }
         break;

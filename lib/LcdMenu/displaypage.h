@@ -15,6 +15,7 @@ class DisplayMenu;
 
 
 typedef void (*DisplayPageCustomDrawFunction) (DisplayPage *pPage);
+typedef void (*DisplayPageCustomShowFunction) (DisplayPage *pPage);
 
 class DisplayPage
 {
@@ -24,6 +25,7 @@ private:
     uint16_t _fillColor;
     DisplayButtonList buttons;
     DisplayPageCustomDrawFunction _customDrawFunction;
+    DisplayPageCustomShowFunction _customShowFunction;
     void init(TFT_eSPI *tft, DisplayMenu *menu, uint16_t fillColor);
     bool addButton(const  DisplayButton button);
 
@@ -40,7 +42,6 @@ public:
      * @brief draws all items on the page
      * 
      */
-    void show();
     TFT_eSPI *getDisplay() { return _tft; }
 
     /**
@@ -138,6 +139,7 @@ public:
 
     int buttonCount() { return buttons.count(); } ;
     void drawButtons();
+    void show();
     void draw(bool wipeScreen = true);
 
     DisplayButton *getPressedButton(uint16_t x, uint16_t y);
@@ -148,6 +150,8 @@ public:
     
     DisplayMenu *getMenu() { return _pMenu; };
     uint16_t getFillColor() { return _fillColor; };
+
+    DisplayButton * getLastButton();
 
     /**
      * @brief Provies a user defined function to  be called every time the page should be drawn.
@@ -175,6 +179,10 @@ public:
      */
     void addCustomDrawFunction(DisplayPageCustomDrawFunction pCustomDrawFunction) {
         _customDrawFunction = pCustomDrawFunction;
+    }
+
+    void addCustomShowFunction(DisplayPageCustomShowFunction pCustomShowFunction) {
+        _customShowFunction = pCustomShowFunction;
     }
 
 };

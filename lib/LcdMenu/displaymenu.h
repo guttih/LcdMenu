@@ -35,8 +35,13 @@ public:
     DisplayPage * addPage(uint16_t fillColor);
     DisplayPage * addPage(DisplayPage page);
     DisplayPage *getPage(int index);
-    void drawPage(int index, bool wipeScreen=true);
-    void drawPage(DisplayPage *pPage, bool wipeScreen=true);
+
+    //called when a page has not been hidden and is beeing made visable;
+    //this function call page->draw when it has run
+    void showPage(int index);
+    void showPage(DisplayPage *pPage);
+    // void drawPage(int index, bool wipeScreen=true);
+    // void drawPage(DisplayPage *pPage, bool wipeScreen=true);
     DisplayPage *getVisablePage();
     DisplayPage*  getLastPage();
     void update();

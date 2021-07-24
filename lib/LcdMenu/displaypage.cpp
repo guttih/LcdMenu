@@ -26,39 +26,29 @@ void DisplayPage::init(TFT_eSPI *tft, DisplayMenu *menu, uint16_t fillColor)
     _tft = tft;
     _fillColor = fillColor;
     _customDrawFunction = NULL;
+    _customShowFunction = NULL;
     _pMenu = menu;
 }
 
-#define BLACK_SPOT
+// #define BLACK_SPOT
 
-// Switch position and size
-#define FRAME_X 100
-#define FRAME_Y 64
-#define FRAME_W 120
-#define FRAME_H 50
+// // Switch position and size
+// #define FRAME_X 100
+// #define FRAME_Y 64
+// #define FRAME_W 120
+// #define FRAME_H 50
 
-// Red zone size
-#define REDBUTTON_X FRAME_X
-#define REDBUTTON_Y FRAME_Y
-#define REDBUTTON_W (FRAME_W / 2)
-#define REDBUTTON_H FRAME_H
+// // Red zone size
+// #define REDBUTTON_X FRAME_X
+// #define REDBUTTON_Y FRAME_Y
+// #define REDBUTTON_W (FRAME_W / 2)
+// #define REDBUTTON_H FRAME_H
 
-// Green zone size
-#define GREENBUTTON_X (REDBUTTON_X + REDBUTTON_W)
-#define GREENBUTTON_Y FRAME_Y
-#define GREENBUTTON_W (FRAME_W / 2)
-#define GREENBUTTON_H FRAME_H
-
-void DisplayPage::show()
-{
-    _tft->fillRect(REDBUTTON_X, REDBUTTON_Y, REDBUTTON_W, REDBUTTON_H, TFT_RED);
-    _tft->fillRect(GREENBUTTON_X, GREENBUTTON_Y, GREENBUTTON_W, GREENBUTTON_H, TFT_DARKGREY);
-    //drawFrame();
-    _tft->setTextColor(TFT_WHITE);
-    _tft->setTextSize(2);
-    _tft->setTextDatum(MC_DATUM);
-    _tft->drawString("ON", GREENBUTTON_X + (GREENBUTTON_W / 2), GREENBUTTON_Y + (GREENBUTTON_H / 2));
-}
+// // Green zone size
+// #define GREENBUTTON_X (REDBUTTON_X + REDBUTTON_W)
+// #define GREENBUTTON_Y FRAME_Y
+// #define GREENBUTTON_W (FRAME_W / 2)
+// #define GREENBUTTON_H FRAME_H
 
 bool DisplayPage::addButton(const DisplayButton button)
 {
@@ -161,6 +151,14 @@ void DisplayPage::draw(bool wipeScreen) {
     drawButtons();
 }
 
+void DisplayPage::show() {
+    
+    if (_customShowFunction)
+        _customShowFunction(this);
+
+    draw(true);
+}
+
 DisplayButton *DisplayPage::getButton(int buttonIndex)
 {
     return buttons.get(buttonIndex);
@@ -185,6 +183,15 @@ DisplayButton *DisplayPage::getPressedButton(uint16_t x, uint16_t y){
         }
     }
     return pressedBtn;
+}
+
+DisplayButton *DisplayPage::getLastButton()
+{
+    int size = buttons.size();
+    if (size < 1)
+        return NULL;
+
+    return buttons.get(size - 1);
 }
 
 // todo:remove is this function needed???

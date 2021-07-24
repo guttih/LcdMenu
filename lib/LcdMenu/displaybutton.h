@@ -45,6 +45,7 @@ struct DISPLAY_BUTTON_VALUES {
     DisplayButtonType type;
     DisplayPage *pPage;
     double *pLinkedValue;
+    String linkedValueName;
     double incrementValue;
     DisplayPage *pPageToOpen;
     ButtonPressedFunction buttonPressedFunction;
@@ -66,6 +67,7 @@ private:
                 const char *text,
                 DisplayButtonType type,
                 DisplayPage *page,
+                String linkedValueName,
                 double *pLinkedValue,
                 double incrementValue,
                 DisplayPage *pageToOpen,
@@ -74,7 +76,13 @@ private:
 public:
     bool  _currentState, 
           _lastState; 
-
+    String getText() { return _values.text; };
+    void setText(String newText) { _values.text = newText; };
+    void linkToValue(double *pLinkedValue, const char *valueName = NULL) { _values.pLinkedValue = pLinkedValue; _values.linkedValueName = valueName? valueName : ""; };
+    double *getLinkedValue() { return _values.pLinkedValue; };
+    void setPageToOpen(DisplayPage *pageToOpen) { _values.pPageToOpen = pageToOpen; };
+    DisplayPage *getPageToOpen() { return _values.pPageToOpen; };
+    void setDatum(uint8_t textDatum, int16_t xDatumOffset, int16_t yDatumOffset) { _values.textDatum = textDatum; _values.xDatumOffset = xDatumOffset; _values.yDatumOffset = yDatumOffset; };
     DISPLAY_BUTTON_VALUES _values;
     DISPLAY_BUTTON_VALUES getValues() { return _values; };
 

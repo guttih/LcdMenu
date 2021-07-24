@@ -16,27 +16,17 @@
 #include "displaymenu.h"
 #include "displaypage.h"
 #include "displaybutton.h"
+#include "getnumberpage.h"
 
 const uint16_t TFT_BUTTON_OUTLINE = tft.color565(115, 149, 125);
 const uint16_t TFT_BUTTON_FILL = tft.color565(48, 73, 47);
 const uint16_t TFT_BUTTON_TEXT = TFT_GOLD;
 
 void addPageMenu(){
-    DisplayPage *pPage = menu.addPage();
-    
-    const int buttonWidth = 170;
-    const int buttonHeight = 50;
-    const int buttonMargin = 20;
-    const int x = (tft.width() - buttonWidth) /2;
-
-    pPage->addPageButton(x, buttonMargin, buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Valves",  menu.getPage(0));
-    //pPage->addButton(x, buttonMargin+1 * (buttonMargin+buttonHeight), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Button nr 2");
-    //pPage->addButton(x, buttonMargin+2 * (buttonMargin+buttonHeight), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Button nr 3");
+    menu.addPage();
 }
 
-void addPageEditValue() {
 
-}
 
 void pageValvesCustomDraw(DisplayPage *pPage) {
     
@@ -115,13 +105,26 @@ void print(DisplayButton *btn) {
 
 void setupMenu()
 {
-    addPageValves();
     addPageMenu();
-    addPageEditValue();
-    menu.drawPage(1);
+    addPageValves();
+    addPageEditValue(&menu, false);
     
-    menu.getPage(0)->addPageButton((tft.width() - 100) /2, 0, 100, 50, tft.color565(115, 149, 125), tft.color565(48, 73, 47), TFT_GOLD, 1, "Menu",  menu.getPage(1));
-    menu.getPage(0)->addFunctionButton((tft.width() - 100) /2, 50, 100, 50, tft.color565(115, 149, 125), tft.color565(48, 73, 47), TFT_GOLD, 1, "print", &print);
+    menu.getPage(1)->addPageButton((tft.width() - 100) /2, 0, 100, 50, tft.color565(115, 149, 125), tft.color565(48, 73, 47), TFT_GOLD, 1, "Menu",  menu.getPage(0));
+    menu.getPage(1)->addFunctionButton((tft.width() - 100) /2, 50, 100, 50, tft.color565(115, 149, 125), tft.color565(48, 73, 47), TFT_GOLD, 1, "print", &print);
+
+    //Add menu buttons
+    const int buttonWidth = 170;
+    const int buttonHeight = 50;
+    const int buttonMargin = 20;
+    const int x = (tft.width() - buttonWidth) /2;
+
+    DisplayPage *pPage = menu.getPage(0);
+    pPage->addPageButton(x, buttonMargin                                  , buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Valves",  menu.getPage(1));
+    pPage->addPageButton(x, buttonMargin + 1 * (buttonMargin+buttonHeight), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Edit global", menu.getPage(2));
+    
+    
+    menu.showPage(0);
+    //pPage->addPageButton(x, buttonMargin + 2 * (buttonMargin+buttonHeight), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Button nr 3");
 }
 
 #endif

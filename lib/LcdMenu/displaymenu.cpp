@@ -33,19 +33,34 @@ void DisplayMenu::init(TFT_eSPI *tft, uint16_t fillColor)
     _visablePage = -1;
 }
 
-void DisplayMenu::drawPage(int index, bool wipeScreen)
+// void DisplayMenu::drawPage(int index, bool wipeScreen)
+// {
+
+//     _visablePage = index;
+//     DisplayPage *pPage = getPage(_visablePage);
+//     pPage->draw(wipeScreen);
+// }
+
+// void DisplayMenu::drawPage(DisplayPage *pPage, bool wipeScreen)
+// {
+
+//     int index = pages.indexOf(pPage);
+//     drawPage(index, wipeScreen);
+// }
+
+void DisplayMenu::showPage(int index)
 {
 
     _visablePage = index;
     DisplayPage *pPage = getPage(_visablePage);
-    pPage->draw(wipeScreen);
+    pPage->show();
 }
 
-void DisplayMenu::drawPage(DisplayPage *pPage, bool wipeScreen)
+void DisplayMenu::showPage(DisplayPage *pPage)
 {
 
     int index = pages.indexOf(pPage);
-    drawPage(index, wipeScreen);
+    showPage(index);
 }
 
 DisplayPage *DisplayMenu::getVisablePage()
