@@ -107,7 +107,7 @@ void setupMenu()
 {
     addPageMenu();
     addPageValves();
-    addPageEditValue(&menu, false);
+    addPageEditValue(&menu, true);
     
     menu.getPage(1)->addPageButton((tft.width() - 100) /2, 0, 100, 50, tft.color565(115, 149, 125), tft.color565(48, 73, 47), TFT_GOLD, 1, "Menu",  menu.getPage(0));
     menu.getPage(1)->addFunctionButton((tft.width() - 100) /2, 50, 100, 50, tft.color565(115, 149, 125), tft.color565(48, 73, 47), TFT_GOLD, 1, "print", &print);

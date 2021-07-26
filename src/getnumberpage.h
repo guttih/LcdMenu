@@ -16,18 +16,52 @@
 
 double globalValue = 123.5;
 
-
 //want full precision but no ending zeros and no ending dot
-String toString(double dNumber) {
-    String str = String(dNumber, 10).c_str();
-    int len = str.length();
-    while(len > 1 && (str.charAt(len-1) == '0' || str.charAt(len-1) == '.')) {
-        str.remove(len-1, 1);
-        len=str.length();
+String removeUnNecessaryDoubleEnding(String str){
+    
+    if (str.indexOf('.') > -1)
+    {
+        int len = str.length();
+        while (len > 1 && (str.charAt(len - 1) == '0'))
+        {
+            str.remove(len - 1, 1);
+            len = str.length();
+        }
     }
+
+    if (str.endsWith("."))
+        str.remove(str.length() - 1, 1);
+
     return str;
 }
 
+String toString(double num) {
+    char output[50];
+
+    snprintf(output, 50, "%.9f", num);
+    return removeUnNecessaryDoubleEnding(output);
+}
+
+/**
+ * @brief checks and converts a string to a double double
+ * 
+ * @param str a string to be tested and remove un necessary endings like 0 and .
+ * @return String if success a string which can be converted to double and if fail an empty string:
+ */
+String convertToDoubleAndBackToSameString(String str)
+{
+    double d = str.toDouble();
+    int dotPos = str.indexOf('.');
+    int fractionLength = dotPos < 0? 0: str.length() - (dotPos + 1);
+    String diffString = String(d,fractionLength);
+
+    diffString = removeUnNecessaryDoubleEnding(diffString);
+
+    if (diffString.equals(removeUnNecessaryDoubleEnding(str)))
+        return diffString;
+    else
+        return "";
+}
 
 void pageEditCustomShow (DisplayPage *pPage) {
     DisplayButton *btnValue = pPage->getLastButton();
@@ -60,6 +94,7 @@ void pageEditKeyPressed(DisplayButton *btn)
 
     DisplayButton *valueButton = btn->getPage()->getLastButton();
     String currentValue = valueButton->getText();
+    String newStr = "";
     int currentLength = currentValue.length();
     switch (firstChar)
     {
@@ -67,7 +102,8 @@ void pageEditKeyPressed(DisplayButton *btn)
     case 'O': //OK
         if (valueButton->getLinkedValue())
         {
-            double newVal = currentValue.toDouble();
+             newStr = convertToDoubleAndBackToSameString(currentValue);
+            double newVal = newStr.toDouble();
             *(valueButton->getLinkedValue()) = newVal;
         }
 
@@ -81,10 +117,7 @@ void pageEditKeyPressed(DisplayButton *btn)
         break;
 
     case 'R': //Reset
-        if (valueButton->getLinkedValue())
-        {
-            valueButton->setText(String(*valueButton->getLinkedValue(), 10));
-        }
+            valueButton->setText("0");
         break;
 
     case '0':
@@ -97,14 +130,17 @@ void pageEditKeyPressed(DisplayButton *btn)
     case '7':
     case '8':
     case '9':
-
-        if (currentLength > 0 && currentValue.charAt(0) == '0' && currentValue.indexOf('.') < 0)
+        if (currentValue == "0")
         {
-            currentValue.remove(currentLength - 1, 1);
+            valueButton->setText(String(firstChar));
         }
+        else
+        {
+            newStr = convertToDoubleAndBackToSameString(currentValue + firstChar);
 
-         //todo: check validity of the string (can it be converted to double and back to same string)
-        valueButton->setText(currentValue + firstChar);
+            if (newStr.length() > 0)
+                valueButton->setText(currentValue + firstChar);
+        }
         break;
 
     case '.':
@@ -119,8 +155,8 @@ void pageEditKeyPressed(DisplayButton *btn)
 
     case 'D': //delete
 
-        if (currentLength > 0)
-        {
+        if (currentLength > 1)
+        {   
             currentValue.remove(currentLength - 1, 1);
             valueButton->setText(currentValue);
         }

@@ -19,7 +19,6 @@ void setupMenu();
 void setup()
 {
   Serial.begin(115200);
-
   touch_calibrate();
   setupMenu();
 }
