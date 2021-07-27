@@ -11,7 +11,8 @@
 
 class DisplayButton;
 
-typedef void (*ButtonPressedFunction) (DisplayButton *ptr);
+typedef void (*ButtonPressedFunction) (DisplayButton *ptrButton);
+typedef void (*OnDrawDisplayButton) (DisplayButton *ptrButton);
 
 /**
  * @brief DisplayButton type enumeration which holds information on how the button behaves when it is pressed.
@@ -23,7 +24,7 @@ enum DisplayButtonType {
     INCREMENT_VALUE
 };
 
-enum DisplayButtonState {
+enum DisplayState {
     VISABLE,
     HIDDEN
 };
@@ -48,13 +49,14 @@ struct DISPLAY_BUTTON_VALUES {
     bool allowOnlyOneButtonPressedAtATime;
 
     DisplayButtonType type;
-    DisplayButtonState state;
+    DisplayState state;
     DisplayPage *pPage;
     double *pLinkedValue;
     String linkedValueName;
     double incrementValue;
     DisplayPage *pPageToOpen;
     ButtonPressedFunction buttonPressedFunction;
+    OnDrawDisplayButton onDrawDisplayButton;
 }; 
 
 class DisplayButton
@@ -72,7 +74,7 @@ private:
                 uint8_t textsize,
                 const char *text,
                 DisplayButtonType type,
-                DisplayButtonState state,
+                DisplayState state,
                 DisplayPage *page,
                 String linkedValueName,
                 double *pLinkedValue,
@@ -92,9 +94,9 @@ public:
     void setPageToOpen(DisplayPage *pageToOpen) { _values.pPageToOpen = pageToOpen; };
     DisplayPage *getPageToOpen() { return _values.pPageToOpen; };
     void setDatum(uint8_t textDatum, int16_t xDatumOffset, int16_t yDatumOffset) { _values.textDatum = textDatum; _values.xDatumOffset = xDatumOffset; _values.yDatumOffset = yDatumOffset; };
-    void setState(DisplayButtonState state) { _values.state = state; };
-    void show() { _values.state = DisplayButtonState::VISABLE; };
-    void hide() { _values.state = DisplayButtonState::HIDDEN; };
+    void setState(DisplayState state) { _values.state = state; };
+    void show() { _values.state = DisplayState::VISABLE; };
+    void hide() { _values.state = DisplayState::HIDDEN; };
     DISPLAY_BUTTON_VALUES _values;
     DISPLAY_BUTTON_VALUES getValues() { return _values; };
 
@@ -131,8 +133,19 @@ public:
                     double *pLinkedValue,
                     double incrementValue
                 );
-    void resetPressState();         
-    void draw(bool inverted=false);
+    void resetPressState();
+
+    /**
+     * @brief draws the button on to the screen
+     * 
+     * @param inverted Should the button colors be drawn inverted
+     * @param checkIfPageIsVisable should the draw be canceled if the page this button belongs to is hidden.
+     * Node if you need more speed this variable should be false;
+     */
+    void draw(bool inverted=false,  bool checkIfPageIsVisable = true);
+    void registerOnDrawEvent(OnDrawDisplayButton pOnDrawDisplayButton) {
+        _values.onDrawDisplayButton = pOnDrawDisplayButton;
+    }
     bool contains(int16_t x, int16_t y);
 
     void serialPrintValues(unsigned int margin=0);

@@ -33,21 +33,6 @@ void DisplayMenu::init(TFT_eSPI *tft, uint16_t fillColor)
     _visablePage = -1;
 }
 
-// void DisplayMenu::drawPage(int index, bool wipeScreen)
-// {
-
-//     _visablePage = index;
-//     DisplayPage *pPage = getPage(_visablePage);
-//     pPage->draw(wipeScreen);
-// }
-
-// void DisplayMenu::drawPage(DisplayPage *pPage, bool wipeScreen)
-// {
-
-//     int index = pages.indexOf(pPage);
-//     drawPage(index, wipeScreen);
-// }
-
 void DisplayMenu::showPage(int index)
 {
 
@@ -103,8 +88,9 @@ DisplayPage *DisplayMenu::getLastPage()
     return pages.get(size - 1);
 }
 
-void DisplayMenu::update()
+bool DisplayMenu::update()
 {
+    bool didUpdate = false;
 
     _touch.pressed = _tft->getTouch(&_touch.x, &_touch.y);
 
@@ -116,7 +102,7 @@ void DisplayMenu::update()
             DisplayButton *btn = pCurrentPage->getPressedButton(_touch.x, _touch.y);
             pCurrentPage->drawTouchButtonsState();
             delay(100);
-
+            didUpdate = true;
             if (btn)
             {
                 if (btn->_values.allowOnlyOneButtonPressedAtATime)
@@ -140,4 +126,5 @@ void DisplayMenu::update()
             }
         }
     }
+    return didUpdate;
 }

@@ -16,16 +16,25 @@ void setupMenu();
 
 #include "menusetup.h"
 
+unsigned long updateTempTimer = 0;
+
 void setup()
 {
   Serial.begin(115200);
   touch_calibrate();
   setupMenu();
+  updateTempTimer = millis() + 10;
 }
 
 void loop()
 {
   menu.update();
+
+  if (millis() > updateTempTimer) {
+    globalTemperature+=0.1;
+    updateTempTimer = millis() + 10;
+      pTempShowButton->draw(); //drawn only when pageValve is visable
+  }
 }
 
 void touch_calibrate()

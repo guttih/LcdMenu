@@ -27,6 +27,49 @@ void addPageMenu(){
 }
 
 
+void showPageEditTemperature (DisplayButton *menuButton) {
+    
+    //about to open edit temperature page
+    DisplayMenu *pMenu = menuButton->getPage()->getMenu();
+    DisplayPage *pEditPage = pMenu->getPage(2);
+
+    DisplayButton *valueButton = pEditPage->getLastButton();
+    valueButton->setPageToOpen(pMenu->getPage(0));
+    valueButton->setLinkToValue(&globalTemperature, "Temperature");
+    allowDouble = true; 
+    allowMinus = true;
+    pMenu->showPage(2);
+}
+
+void showPageEditGlobalDouble (DisplayButton *menuButton) {
+    
+    DisplayMenu *pMenu = menuButton->getPage()->getMenu();
+    DisplayPage *pEditPage = pMenu->getPage(2);
+
+    DisplayButton *valueButton = pEditPage->getLastButton();
+    valueButton->setPageToOpen(pMenu->getPage(0));
+    valueButton->setLinkToValue(&globalValueDouble, "Global double");
+    
+    allowDouble = true; 
+    allowMinus = true;
+    pMenu->showPage(2);
+}
+
+void showPageEditGlobalLong (DisplayButton *menuButton) {
+
+    DisplayMenu *pMenu = menuButton->getPage()->getMenu();
+    DisplayPage *pEditPage = pMenu->getPage(2);
+
+    DisplayButton *valueButton = pEditPage->getLastButton();
+    
+    valueButton->setPageToOpen(pMenu->getPage(0));
+    valueButton->setLinkToValue(&globalValueLong, "Global long");
+    
+    allowDouble = false; 
+    allowMinus = true;
+    pMenu->showPage(2);
+}
+
 
 void onDrawPageValves(DisplayPage *pPage) {
     
@@ -61,22 +104,11 @@ void onDrawPageValves(DisplayPage *pPage) {
 
     tft.setTextColor(TFT_GOLD);
     tft.setTextDatum(C_BASELINE);
-    tft.drawString("24.87°", tft.width()/2, 220);
     
     tft.setFreeFont(&FreeSans9pt7b);
     tft.drawString("Temperature", screenXCenter, 200);
-
     tft.setTextDatum(oldDatum);
     
-    pTempShowButton->setText(toString(*pTempShowButton->getLinkedValue()));
-    // int last = pPage->getButton(pPage->buttons.indexOf(pPage->getLastButton()));
-    // DisplayButton *tempBtn = pPage->getLastButton();
-    // Serial.printf("onDrawPageValves::lastButtonText:%s\n", tempBtn->getText());
-    // if (tempBtn->getLinkedValue())
-    // {   
-    //     Serial.printf("onDrawPageValves::globalTemperature: %p and value is %0.9f\n",(void *)&globalTemperature, globalTemperature);
-    //     String str = toString(*(tempBtn->getLinkedValue()));
-    // }
 }
 
 void addValve(DisplayPage *pPage, bool hotValve) {
@@ -99,20 +131,10 @@ void addValve(DisplayPage *pPage, bool hotValve) {
     ++btnCount; pPage->addIncrementButton( buttonMarginX + ((btnCount % 2) * (buttonPaddingX + buttonWidth) ) + x, buttonMarginY+ (btnCount % 3) * (buttonHeight + buttonPaddingY), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, ">>>", pPlowValue, 10);
 }
 
-void showPageEditTemperature (DisplayButton *menuButton) {
+void onDrawTemperatureButton (DisplayButton *ptrButton) {
     
-    //about to open edit temperature page
-    DisplayMenu *pMenu = menuButton->getPage()->getMenu();
-    DisplayPage *pEditPage = pMenu->getPage(2);
-
-    DisplayButton *valueButton = pEditPage->getLastButton();
-    valueButton->setPageToOpen(pMenu->getPage(0));
-    valueButton->setLinkToValue(&globalTemperature, "Temperature");
-    allowDouble = true; 
-    allowMinus = true;
-    pMenu->showPage(2);
+    ptrButton->setText(toString(*ptrButton->getLinkedValue()));
 }
-
 void addPageValves(){
     DisplayPage *pPage = menu.addPage();
     pPage->registerOnDrawEvent(onDrawPageValves);
@@ -120,47 +142,20 @@ void addPageValves(){
 
     addValve(pPage, false);
     addValve(pPage, true);
-    //tft.drawString("24.87°", tft.width()/2, 220);
-     int32_t h=20, w=100;
-    uint8_t datum = tft.getTextDatum();
-    tft.setTextColor(TFT_GOLD);
-    tft.setTextDatum(C_BASELINE);
+
+
+    
 
     //temperatue button used to show show the temperature and if pressed edit the temperature
-    pTempShowButton = pPage->addFunctionButton(tft.width()/2, 220, w, h, pPage->getFillColor(), pPage->getFillColor(), TFT_GOLD, 1, NULL,  showPageEditTemperature);
+    const int w = 100;
+    pTempShowButton = pPage->addFunctionButton(((tft.width()-w)/2), 210, 100, 20, pPage->getFillColor(), pPage->getFillColor(), TFT_GOLD, 1, NULL,  showPageEditTemperature);
     pTempShowButton->setLinkToValue(&globalTemperature, "value missing!");
-    tft.setTextDatum(datum);
+    pTempShowButton->setDatum(MC_DATUM, 0, 0);
+    pTempShowButton->registerOnDrawEvent(onDrawTemperatureButton);
     
 }
 
-void showPageEditGlobalDouble (DisplayButton *menuButton) {
-    
-    DisplayMenu *pMenu = menuButton->getPage()->getMenu();
-    DisplayPage *pEditPage = pMenu->getPage(2);
 
-    DisplayButton *valueButton = pEditPage->getLastButton();
-    valueButton->setPageToOpen(pMenu->getPage(0));
-    valueButton->setLinkToValue(&globalValueDouble, "Global double");
-    
-    allowDouble = true; 
-    allowMinus = true;
-    pMenu->showPage(2);
-}
-
-void showPageEditGlobalLong (DisplayButton *menuButton) {
-
-    DisplayMenu *pMenu = menuButton->getPage()->getMenu();
-    DisplayPage *pEditPage = pMenu->getPage(2);
-
-    DisplayButton *valueButton = pEditPage->getLastButton();
-    
-    valueButton->setPageToOpen(pMenu->getPage(0));
-    valueButton->setLinkToValue(&globalValueLong, "Global long");
-    
-    allowDouble = false; 
-    allowMinus = true;
-    pMenu->showPage(2);
-}
 void setupMenu()
 {
     Serial.println("Global addresses");

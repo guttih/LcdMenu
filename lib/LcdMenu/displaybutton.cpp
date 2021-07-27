@@ -84,7 +84,7 @@ void DisplayButton::init(   TFT_eSPI *tft,
                             uint8_t textsize,
                             const char *text, 
                             DisplayButtonType type,
-                            DisplayButtonState state,
+                            DisplayState state,
                             DisplayPage *page,
                             String linkedValueName,
                             double *pLinkedValue,
@@ -111,14 +111,14 @@ void DisplayButton::init(   TFT_eSPI *tft,
     _values.pLinkedValue = pLinkedValue;
     _values.incrementValue = incrementValue;
     _values.pPageToOpen = pPageToOpen;
+    _values.buttonPressedFunction = buttonPressedFunction;
 
     //defaults
     _values.radius = min(width, height) / 6; // Corner radius
     _values.textDatum = MC_DATUM;
     _values.xDatumOffset = 0;
     _values.yDatumOffset = 2;
-    _values.buttonPressedFunction = buttonPressedFunction;
-
+    _values.onDrawDisplayButton = NULL;
     _values.allowOnlyOneButtonPressedAtATime = type == OPEN_PAGE || type == RUN_FUNCTION? true: false;
 }
 
@@ -127,12 +127,25 @@ void DisplayButton::resetPressState () {
   _currentState = false;
 }
 
-void DisplayButton::draw(bool inverted)
+void DisplayButton::draw(bool inverted, bool cancelDrawIfPageIsNotVisable)
 {
-
     if (_values.state == HIDDEN) {
         return;
     }
+
+    if (cancelDrawIfPageIsNotVisable)
+    {
+        DisplayPage *pPage = getPage();
+        if (pPage)
+        {
+            DisplayMenu *pMenu = pPage->getMenu();
+            if (pMenu && pPage != pMenu->getVisablePage())
+                return;
+        }
+    }
+
+    if (_values.onDrawDisplayButton)
+        _values.onDrawDisplayButton(this);
 
     uint16_t fillColor, outlineColor, textColor;
     if (!inverted)
@@ -151,21 +164,22 @@ void DisplayButton::draw(bool inverted)
     _values.tft->fillRoundRect(_values.x, _values.y, _values.width, _values.height, _values.radius, fillColor);
     _values.tft->drawRoundRect(_values.x, _values.y, _values.width, _values.height, _values.radius, outlineColor);
 
+    uint16_t before_color = _values.tft->textcolor;
+    uint8_t  before_textSize = _values.tft->textsize;
+    uint8_t  before_textDatum = _values.tft->getTextDatum();
+    uint8_t  before_textPadding = _values.tft->getTextPadding();
+
     _values.tft->setTextColor(textColor);
     _values.tft->setTextSize(_values.textsize);
-
-    
-    uint8_t textDatumBefore = _values.tft->getTextDatum();
-    uint8_t textPaddingBefore = _values.tft->getTextPadding();
-
     _values.tft->setTextDatum(_values.textDatum);
     _values.tft->setTextPadding(0);
 
-    //_values.tft->drawString(_values.text, _values.x, _values.y);
     _values.tft->drawString(_values.text, _values.x + (_values.width/2) + _values.xDatumOffset, _values.y + (_values.height/2) - 4 + _values.yDatumOffset);
 
-     _values.tft->setTextDatum(textDatumBefore);
-     _values.tft->setTextPadding(textPaddingBefore);
+    _values.tft->setTextColor(before_color);
+    _values.tft->setTextSize(before_textSize);
+    _values.tft->setTextDatum(before_textDatum);
+    _values.tft->setTextPadding(before_textPadding);
 
 }
 

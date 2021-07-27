@@ -36,19 +36,27 @@ public:
     DisplayPage * addPage(DisplayPage page);
     DisplayPage *getPage(int index);
 
-    //called when a page has not been hidden and is beeing made visable;
-    //this function call page->draw when it has run
+    //called when a page is beeing made visable;
     void showPage(int index);
     void showPage(DisplayPage *pPage);
-    // void drawPage(int index, bool wipeScreen=true);
-    // void drawPage(DisplayPage *pPage, bool wipeScreen=true);
     DisplayPage *getVisablePage();
+    
+    /**
+     * @brief Get the Visable Page Index 
+     * 
+     * @return int if no page is visable -1 is returned
+     */
+    int getVisablePageIndex() { return _visablePage; };
     DisplayPage*  getLastPage();
-    void update();
-    
-    
-    //void drawButton(bool inverted, String long_name);
 
+    //DisplayPage*   getVisablePageIndex() { return _visablePage; };
+    /**
+     * @brief checks if a button was pressed and updates it's value and runs it's associated actions. 
+     * 
+     * @return true a button was pressed and a button status did change.
+     * @return false no button was pressed.
+     */
+    bool update();
 };
 
 
