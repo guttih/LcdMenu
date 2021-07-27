@@ -25,8 +25,8 @@ void DisplayPage::init(TFT_eSPI *tft, DisplayMenu *menu, uint16_t fillColor)
 {
     _tft = tft;
     _fillColor = fillColor;
-    _customDrawFunction = NULL;
-    _customShowFunction = NULL;
+    _onDrawDisplayPage = NULL;
+    _onShowDisplayPage = NULL;
     _pMenu = menu;
 }
 
@@ -144,8 +144,9 @@ void DisplayPage::draw(bool wipeScreen) {
     if (wipeScreen)
         _tft->fillScreen(_fillColor);
     
-    if (_customDrawFunction)
-        _customDrawFunction(this);
+    if (_onDrawDisplayPage) {
+        _onDrawDisplayPage(this);
+    }
 
     _tft->setFreeFont(&FreeMonoBold9pt7b); 
     drawButtons();
@@ -153,8 +154,9 @@ void DisplayPage::draw(bool wipeScreen) {
 
 void DisplayPage::show() {
     
-    if (_customShowFunction)
-        _customShowFunction(this);
+    if (_onShowDisplayPage) {
+        _onShowDisplayPage(this);
+    }
 
     draw(true);
 }
@@ -195,7 +197,7 @@ DisplayButton *DisplayPage::getLastButton()
 }
 
 // todo:remove is this function needed???
-void DisplayPage::drawButtonsState() { 
+void DisplayPage::drawTouchButtonsState() { 
 
      int buttonCount = this->buttonCount();
 

@@ -14,8 +14,8 @@
 class DisplayMenu;
 
 
-typedef void (*DisplayPageCustomDrawFunction) (DisplayPage *pPage);
-typedef void (*DisplayPageCustomShowFunction) (DisplayPage *pPage);
+typedef void (*OnShowDisplayPage) (DisplayPage *pPage);
+typedef void (*OnDrawDisplayPage) (DisplayPage *pPage);
 
 class DisplayPage
 {
@@ -24,8 +24,8 @@ private:
     DisplayMenu *_pMenu;
     uint16_t _fillColor;
     DisplayButtonList buttons;
-    DisplayPageCustomDrawFunction _customDrawFunction;
-    DisplayPageCustomShowFunction _customShowFunction;
+    OnShowDisplayPage _onShowDisplayPage;
+    OnDrawDisplayPage _onDrawDisplayPage;
     void init(TFT_eSPI *tft, DisplayMenu *menu, uint16_t fillColor);
     bool addButton(const  DisplayButton button);
 
@@ -137,13 +137,21 @@ public:
      */
     DisplayButton* getButton(int buttonIndex);
 
+    /**
+     * @brief Searches for a button by the button text
+     * 
+     * @param text 
+     * @return DisplayButton* if a button was found, otherwise NULL
+     */
+    DisplayButton *getButtonByText(String text) { return buttons.findButtonByText(text); }
+
     int buttonCount() { return buttons.count(); } ;
     void drawButtons();
     void show();
     void draw(bool wipeScreen = true);
 
     DisplayButton *getPressedButton(uint16_t x, uint16_t y);
-    void drawButtonsState();
+    void drawTouchButtonsState();
     void serialPrintValues(unsigned int margin = 0);
 
     TFT_eSPI *getTft() { return _tft; };
@@ -154,11 +162,11 @@ public:
     DisplayButton * getLastButton();
 
     /**
-     * @brief Provies a user defined function to  be called every time the page should be drawn.
+     * @brief Provies a user defined function to  be called every time before the page should be drawn.
      * 
      * @code .cpp
      * 
-     * When function draw() is called it will call this function and print out to serial most of the page values.
+     * When function draw() is called, it will call this function and print out to serial most of the page values.
      * 
      * TFT_eSPI tft = TFT_eSPI();
      * void myCustomPageDrawFunc(DisplayPage *pPage)
@@ -175,14 +183,19 @@ public:
      * }
      * @endcode 
      * 
-     * @param pCustomDrawFunction a pointer to a function which takes one void * parameter
+     * @param pOnDrawDisplayPage a pointer to a function which will be called just before the page is drawn
      */
-    void addCustomDrawFunction(DisplayPageCustomDrawFunction pCustomDrawFunction) {
-        _customDrawFunction = pCustomDrawFunction;
+    void registerOnDrawEvent(OnDrawDisplayPage pOnDrawDisplayPage) {
+        _onDrawDisplayPage = pOnDrawDisplayPage;
     }
 
-    void addCustomShowFunction(DisplayPageCustomShowFunction pCustomShowFunction) {
-        _customShowFunction = pCustomShowFunction;
+    /**
+     * @brief Provies a user defined function to be called every time before the page should be shown.
+     * 
+     * @param pOnShowDisplayPage a pointer to a function which will be called just before the page is shown
+     */
+    void registerOnShowEvent(OnShowDisplayPage pOnShowDisplayPage) {
+        _onShowDisplayPage = pOnShowDisplayPage;
     }
 
 };

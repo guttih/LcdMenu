@@ -23,6 +23,11 @@ enum DisplayButtonType {
     INCREMENT_VALUE
 };
 
+enum DisplayButtonState {
+    VISABLE,
+    HIDDEN
+};
+
 class DisplayPage;
 
 struct DISPLAY_BUTTON_VALUES {
@@ -43,6 +48,7 @@ struct DISPLAY_BUTTON_VALUES {
     bool allowOnlyOneButtonPressedAtATime;
 
     DisplayButtonType type;
+    DisplayButtonState state;
     DisplayPage *pPage;
     double *pLinkedValue;
     String linkedValueName;
@@ -66,6 +72,7 @@ private:
                 uint8_t textsize,
                 const char *text,
                 DisplayButtonType type,
+                DisplayButtonState state,
                 DisplayPage *page,
                 String linkedValueName,
                 double *pLinkedValue,
@@ -78,11 +85,16 @@ public:
           _lastState; 
     String getText() { return _values.text; };
     void setText(String newText) { _values.text = newText; };
-    void linkToValue(double *pLinkedValue, const char *valueName = NULL) { _values.pLinkedValue = pLinkedValue; _values.linkedValueName = valueName? valueName : ""; };
+    void setLinkToValue(double *pLinkedValue, String valueName);
+    
     double *getLinkedValue() { return _values.pLinkedValue; };
+    String getLinkedValueName() { return _values.linkedValueName; };
     void setPageToOpen(DisplayPage *pageToOpen) { _values.pPageToOpen = pageToOpen; };
     DisplayPage *getPageToOpen() { return _values.pPageToOpen; };
     void setDatum(uint8_t textDatum, int16_t xDatumOffset, int16_t yDatumOffset) { _values.textDatum = textDatum; _values.xDatumOffset = xDatumOffset; _values.yDatumOffset = yDatumOffset; };
+    void setState(DisplayButtonState state) { _values.state = state; };
+    void show() { _values.state = DisplayButtonState::VISABLE; };
+    void hide() { _values.state = DisplayButtonState::HIDDEN; };
     DISPLAY_BUTTON_VALUES _values;
     DISPLAY_BUTTON_VALUES getValues() { return _values; };
 

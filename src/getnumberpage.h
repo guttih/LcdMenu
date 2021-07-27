@@ -14,7 +14,11 @@
 
 #include "displaymenu.h"
 
-double globalValue = 123.5;
+double globalValueDouble = 123.5;
+double globalValueLong = 123;
+
+bool allowDouble, 
+     allowMinus;
 
 //want full precision but no ending zeros and no ending dot
 String removeUnNecessaryDoubleEnding(String str){
@@ -63,19 +67,26 @@ String convertToDoubleAndBackToSameString(String str)
         return "";
 }
 
-void pageEditCustomShow (DisplayPage *pPage) {
+void onShowEditValuePage (DisplayPage *pPage) {
+    DisplayButton *btn;
+    
+    //Hide or show dot button
+    btn = pPage->getButtonByText(".");
+    btn->setState(allowDouble? VISABLE : HIDDEN);
+
+    //Hide or show minus button
+    btn = pPage->getButtonByText("-");
+    btn->setState(allowMinus? VISABLE : HIDDEN);
+
     DisplayButton *btnValue = pPage->getLastButton();
 
-    if (btnValue->getLinkedValue()){
-        btnValue->setText(toString(*btnValue->getLinkedValue()));
-    }
+    btnValue->setText(toString(*btnValue->getLinkedValue()));
 
 }
 
-void pageEditCustomDraw (DisplayPage *pPage) {
+void onDrawEditValuePage (DisplayPage *pPage) {
     DisplayButton *btnValue = pPage->getLastButton();
-
-    pPage->getDisplay()->drawString(btnValue->_values.linkedValueName, 12, 44);
+    pPage->getDisplay()->drawString(btnValue->getLinkedValueName(), 12, 44);
 
     btnValue->draw();
 
@@ -118,6 +129,18 @@ void pageEditKeyPressed(DisplayButton *btn)
 
     case 'R': //Reset
             valueButton->setText("0");
+        break;
+
+    case '-':
+        if (currentValue.startsWith("-")) {
+            currentValue.remove(0, 1);
+        } else {
+            // no negative sign at beginning
+            if (currentLength > 0 && currentValue != "0") {
+                currentValue = String('-') + currentValue;
+            }
+        }
+        valueButton->setText(currentValue);
         break;
 
     case '0':
@@ -167,81 +190,84 @@ void pageEditKeyPressed(DisplayButton *btn)
         break;
     }
 
-    pageEditCustomDraw(pPage);
+    onDrawEditValuePage(pPage);
 }
 
-void addPageEditValue(DisplayMenu *pMenu, bool allowDouble)
+void addPageEditValue(DisplayMenu *pMenu)
 {
     DisplayPage *pPage = pMenu->addPage();
 
-    const int keyRows = 4;
-    const int keyCols = 3;
+    const int rowCount = 4;
+    const int colCount = 4;
 
-    const int keyCount = (keyRows * keyCols) - 1;
-    // char keys[keyRows][keyCols][2] = {
-    //     { "7",  "8",  "9" },
-    //     { "4",  "5",  "6" },
-    //     { "1",  "2",  "3" },
-    //     { "0",  ".",  "x" }
-    // };
+    const int keyCount = (rowCount * colCount);
 
-    char keys[keyCount][2] = {
-        "7", "8", "9",
-        "4", "5", "6",
-        "1", "2", "3",
-        "0", "."};
+    char keys[keyCount][7] = {
+        "7", "8", "9", "Delete",
+        "4", "5", "6", "Reset",
+        "1", "2", "3", "Cancel",
+        "0", ".", "-", "OK"};
+
+    uint16_t commandColors[rowCount] = {
+        //Delete,  Reset,     Cancel,  OK,            
+        TFT_BROWN, TFT_BROWN, TFT_RED, TFT_DARKGREEN };
 
     struct COMMAND_BUTTON {
         char text[3];
         uint16_t fillColor;
     };
 
-    Serial.println();
-
-    const uint16_t TFT_BUTTON_OUTLINE = tft.color565(115, 149, 125);
-    const uint16_t TFT_BUTTON_FILL = tft.color565(48, 73, 47);
-    const uint16_t TFT_BUTTON_TEXT = TFT_GOLD;
-
-    int buttonWidth = 50;
-    const int buttonHeight = 39;
-    int buttonMarginX = 10;
-    const int buttonMarginY = 68;
-    const int buttonPaddingX = 5;
-    const int buttonPaddingY = 5;
+    const uint16_t  TFT_BUTTON_OUTLINE = tft.color565(115, 149, 125),
+                    TFT_BUTTON_FILL = tft.color565(48, 73, 47),
+                    TFT_BUTTON_TEXT = TFT_GOLD;
     
+    const int   buttonWidth = 50,
+                buttonHeight = 39,
+                buttonMarginX = 10,
+                buttonMarginY = 68,
+                buttonPaddingX = 5,
+                buttonPaddingY = 5,
+                buttonCmdWidth = 130,
+                buttonCmdMarginX = 180;
+
+    //bool addZero, addDot, addMinus;
 
     int col, row = 0;
     for (int x = 0; x < keyCount; x++)
     {
-        col = x % 3;
-        if (x != keyCount-1 || allowDouble )
-        pPage->addFunctionButton(buttonMarginX + (col * (buttonPaddingX + buttonWidth)), buttonMarginY + (row * (buttonHeight + buttonPaddingY)),
-                                 buttonWidth, buttonHeight,
-                                 TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, keys[x], pageEditKeyPressed);
-        if ((x + 1) % 3 == 0)
-            row++;
+        col = x % colCount;
+        // addZero  = col == 0 && row==3 && allowMinus;
+        // addDot   = col == 1 && row==3 && allowDouble;
+        // addMinus = col == 2 && row==3 && allowMinus;
+        if (col < (colCount - 1))
+        {
+            //if (row !=3 || addZero || addDot || addMinus ) {
+                pPage->addFunctionButton(buttonMarginX + (col * (buttonPaddingX + buttonWidth)), buttonMarginY + (row * (buttonHeight + buttonPaddingY)),
+                                         buttonWidth, buttonHeight,
+                                         TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, keys[x], pageEditKeyPressed);
+            //}
+        }
+        else
+        {   //Command buttons
+            pPage->addFunctionButton(buttonCmdMarginX, buttonMarginY + (row * (buttonHeight + buttonPaddingY)), buttonCmdWidth, buttonHeight, TFT_BUTTON_OUTLINE, commandColors[row], TFT_BUTTON_TEXT, 1, keys[x], pageEditKeyPressed);
+        }
 
+        if ((x + 1) % colCount == 0)
+            row++;
     }
 
-    buttonWidth = 130;
-    buttonMarginX = 180;
-    pPage->addFunctionButton(buttonMarginX, buttonMarginY                                        , buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BROWN      , TFT_BUTTON_TEXT, 1,"Delete", pageEditKeyPressed);
-    pPage->addFunctionButton(buttonMarginX, buttonMarginY + (1 * (buttonHeight + buttonPaddingY)), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BROWN     , TFT_BUTTON_TEXT, 1,"Reset",   pageEditKeyPressed);
-   
-    pPage->addFunctionButton(buttonMarginX, buttonMarginY + (2 * (buttonHeight + buttonPaddingY)), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_DARKGREEN  , TFT_BUTTON_TEXT, 1,"OK"    , pageEditKeyPressed);
-    pPage->addFunctionButton(buttonMarginX, buttonMarginY + (3 * (buttonHeight + buttonPaddingY)), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_RED        , TFT_BUTTON_TEXT, 1,"Cancel", pageEditKeyPressed);
-
-    pPage->addFunctionButton(10, 1, 300, buttonHeight, TFT_BUTTON_OUTLINE , pPage->getDisplay()->color565(25, 25, 25), TFT_BUTTON_TEXT, 1, String(globalValue).c_str(), NULL);
+    //pPage->addFunctionButton(10, 1, 300, buttonHeight, TFT_BUTTON_OUTLINE , pPage->getDisplay()->color565(25, 25, 25), TFT_BUTTON_TEXT, 1, String(globalValueDouble).c_str(), NULL);
+    pPage->addFunctionButton(10, 1, 300, buttonHeight, TFT_BUTTON_OUTLINE , pPage->getDisplay()->color565(25, 25, 25), TFT_BUTTON_TEXT, 1, "0", NULL);
     
     
     DisplayButton *btn = pPage->getLastButton();
     btn->setPageToOpen(pPage->getMenu()->getPage(0));
-    btn->linkToValue(&globalValue, "Global value");
+    //btn->linkToValue(&globalValueDouble, "Global value");
     btn->setDatum(MR_DATUM, 140,3);
     btn->serialPrintValues();
     
-    pPage->addCustomDrawFunction(pageEditCustomDraw);
-    pPage->addCustomShowFunction(pageEditCustomShow);
+    pPage->registerOnDrawEvent(onDrawEditValuePage);
+    pPage->registerOnShowEvent(onShowEditValuePage);
     
 
     

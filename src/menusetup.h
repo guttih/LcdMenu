@@ -28,7 +28,7 @@ void addPageMenu(){
 
 
 
-void pageValvesCustomDraw(DisplayPage *pPage) {
+void onDrawPageValves(DisplayPage *pPage) {
     
     //DisplayPage * pPage = (DisplayPage *)pagePtr;
 
@@ -90,7 +90,7 @@ void addValve(DisplayPage *pPage, bool hotValve) {
 
 void addPageValves(){
     DisplayPage *pPage = menu.addPage();
-    pPage->addCustomDrawFunction(pageValvesCustomDraw);
+    pPage->registerOnDrawEvent(onDrawPageValves);
     
     addValve(pPage, false);
     addValve(pPage, true);
@@ -99,18 +99,46 @@ void addPageValves(){
     
 }
 
-void print(DisplayButton *btn) {
-    Serial.print("display button: ");Serial.println(btn->_values.text);
+void showPageEditGlobalDouble (DisplayButton *menuButton) {
+    
+    DisplayMenu *pMenu = menuButton->getPage()->getMenu();
+    DisplayPage *pEditPage = pMenu->getPage(2);
+
+    DisplayButton *valueButton = pEditPage->getLastButton();
+    valueButton->setPageToOpen(pMenu->getPage(0));
+    valueButton->setLinkToValue(&globalValueDouble, "Global double");
+    
+    allowDouble = true; 
+    allowMinus = true;
+    pMenu->showPage(2);
 }
 
+void showPageEditGlobalLong (DisplayButton *menuButton) {
+
+    DisplayMenu *pMenu = menuButton->getPage()->getMenu();
+    DisplayPage *pEditPage = pMenu->getPage(2);
+
+    DisplayButton *valueButton = pEditPage->getLastButton();
+    
+    valueButton->setPageToOpen(pMenu->getPage(0));
+    valueButton->setLinkToValue(&globalValueLong, "Global long");
+    
+    allowDouble = false; 
+    allowMinus = true;
+    pMenu->showPage(2);
+}
 void setupMenu()
 {
-    addPageMenu();
-    addPageValves();
-    addPageEditValue(&menu, true);
+    Serial.println("Global addresses");
+    Serial.printf(" - globalValueDouble: %p\n", (void *)&globalValueDouble);
+    Serial.printf(" - globalValueLong: %p\n",(void *)&globalValueLong);
+
+    addPageMenu(); //index 0
+    addPageValves(); //index 1
+    
+    addPageEditValue(&menu); //index 2
     
     menu.getPage(1)->addPageButton((tft.width() - 100) /2, 0, 100, 50, tft.color565(115, 149, 125), tft.color565(48, 73, 47), TFT_GOLD, 1, "Menu",  menu.getPage(0));
-    menu.getPage(1)->addFunctionButton((tft.width() - 100) /2, 50, 100, 50, tft.color565(115, 149, 125), tft.color565(48, 73, 47), TFT_GOLD, 1, "print", &print);
 
     //Add menu buttons
     const int buttonWidth = 170;
@@ -120,10 +148,14 @@ void setupMenu()
 
     DisplayPage *pPage = menu.getPage(0);
     pPage->addPageButton(x, buttonMargin                                  , buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Valves",  menu.getPage(1));
-    pPage->addPageButton(x, buttonMargin + 1 * (buttonMargin+buttonHeight), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Edit global", menu.getPage(2));
+    // pPage->addPageButton(x, buttonMargin + 1 * (buttonMargin+buttonHeight), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Edit global", menu.getPage(2));
+    pPage->addFunctionButton(x, buttonMargin + 1 * (buttonMargin+buttonHeight), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Edit global", showPageEditGlobalDouble);
+    pPage->addFunctionButton(x, buttonMargin + 1.5 * (buttonMargin+buttonHeight), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Edit globalLong",showPageEditGlobalLong);
     
     
     menu.showPage(0);
+    allowMinus = true;
+    allowDouble = false;
     //pPage->addPageButton(x, buttonMargin + 2 * (buttonMargin+buttonHeight), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Button nr 3");
 }
 

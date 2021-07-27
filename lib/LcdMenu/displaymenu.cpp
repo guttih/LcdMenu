@@ -114,7 +114,7 @@ void DisplayMenu::update()
         if (pCurrentPage)
         {
             DisplayButton *btn = pCurrentPage->getPressedButton(_touch.x, _touch.y);
-            pCurrentPage->drawButtonsState();
+            pCurrentPage->drawTouchButtonsState();
             delay(100);
 
             if (btn)

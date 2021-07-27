@@ -18,7 +18,7 @@ DisplayButton::DisplayButton(   TFT_eSPI *tft,
                                 )
 {
 
-    init(tft, x, y, width, height, outlineColor, fillColor, textColor, textsize, text, type, page, "",  NULL, 0, pPageToOpen, buttonPressed);
+    init(tft, x, y, width, height, outlineColor, fillColor, textColor, textsize, text, type, VISABLE, page, "",  NULL, 0, pPageToOpen, buttonPressed);
 }
 
 
@@ -39,19 +39,18 @@ DisplayButton::DisplayButton(   TFT_eSPI *tft,
                                 )
 {
 
-    init(tft, x, y, width, height, outlineColor, fillColor, textColor, textsize, text, type, page, "", pLinkedValue, incrementValue, NULL, NULL);
+    init(tft, x, y, width, height, outlineColor, fillColor, textColor, textsize, text, type, VISABLE, page, "", pLinkedValue, incrementValue, NULL, NULL);
 }
 
 // Copy constructor
 DisplayButton::DisplayButton(const DisplayButton &button)
 {
-    init(button._values.tft, button._values.x, button._values.y,
-         button._values.width, button._values.height, button._values.outlineColor,
-         button._values.fillColor, button._values.textColor,
-         button._values.textsize, button._values.text.c_str(), 
-         button._values.type, button._values.pPage,
-        button._values.linkedValueName, button._values.pLinkedValue, button._values.incrementValue, 
-        button._values.pPageToOpen, button._values.buttonPressedFunction);
+    init(button._values.tft           , button._values.x              , button._values.y,
+         button._values.width         , button._values.height         , button._values.outlineColor,
+         button._values.fillColor     , button._values.textColor      , button._values.textsize,
+         button._values.text.c_str()  , button._values.type           , button._values.state,
+         button._values.pPage         , button._values.linkedValueName, button._values.pLinkedValue, 
+         button._values.incrementValue, button._values.pPageToOpen    , button._values.buttonPressedFunction);
 }
 
 void DisplayButton::serialPrintValues(unsigned int margin)
@@ -85,6 +84,7 @@ void DisplayButton::init(   TFT_eSPI *tft,
                             uint8_t textsize,
                             const char *text, 
                             DisplayButtonType type,
+                            DisplayButtonState state,
                             DisplayPage *page,
                             String linkedValueName,
                             double *pLinkedValue,
@@ -103,8 +103,9 @@ void DisplayButton::init(   TFT_eSPI *tft,
     _values.fillColor = fillColor;
     _values.textColor = textColor;
     _values.textsize = textsize;
-    _values.text = text,
+    _values.text = text;
     _values.type = type;
+    _values.state = state;
     _values.pPage = page;
     _values.linkedValueName = linkedValueName;
     _values.pLinkedValue = pLinkedValue;
@@ -128,6 +129,10 @@ void DisplayButton::resetPressState () {
 
 void DisplayButton::draw(bool inverted)
 {
+
+    if (_values.state == HIDDEN) {
+        return;
+    }
 
     uint16_t fillColor, outlineColor, textColor;
     if (!inverted)
@@ -186,6 +191,8 @@ bool DisplayButton::justReleased() {
 
 bool DisplayButton::executeCommand()
 {
+    if (_values.state == HIDDEN)
+        return false;
 
     switch (_values.type)
     {
@@ -221,3 +228,8 @@ bool DisplayButton::executeCommand()
     }
     return false;
 }
+
+void DisplayButton::setLinkToValue(double *pLinkedValue, String valueName) { 
+    _values.pLinkedValue = pLinkedValue; 
+    _values.linkedValueName = valueName; 
+};

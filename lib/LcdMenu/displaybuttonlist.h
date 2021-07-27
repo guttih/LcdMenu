@@ -17,6 +17,14 @@ private:
 
 public:
     bool add(DisplayButton page);
+
+    /**
+     * @brief Searches for a button by the button text
+     * 
+     * @param text 
+     * @return DisplayButton* if a button was found, otherwise NULL
+     */
+    DisplayButton *findButtonByText(String text);
     
     /**
      * @brief The count of items in the list
