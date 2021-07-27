@@ -30,8 +30,6 @@ void addPageMenu(){
 
 void onDrawPageValves(DisplayPage *pPage) {
     
-    //DisplayPage * pPage = (DisplayPage *)pagePtr;
-
     if (values.coldValveFlow < 0) values.coldValveFlow = 0;
     if (values.coldValveFlow > 100) values.coldValveFlow = 100;
     if (values.hotValveFlow < 0) values.hotValveFlow = 0;
@@ -40,6 +38,8 @@ void onDrawPageValves(DisplayPage *pPage) {
 
     int16_t screenXCenter = tft.width()/2;
 
+    uint8_t oldDatum = tft.getTextDatum();
+    
     tft.setTextDatum(TL_DATUM);
 
     tft.setTextColor(TFT_CYAN);
@@ -66,6 +66,7 @@ void onDrawPageValves(DisplayPage *pPage) {
     tft.setFreeFont(&FreeSans9pt7b);
     tft.drawString("Temperature", screenXCenter, 200);
 
+    tft.setTextDatum(oldDatum);
 }
 
 void addValve(DisplayPage *pPage, bool hotValve) {
@@ -148,15 +149,13 @@ void setupMenu()
 
     DisplayPage *pPage = menu.getPage(0);
     pPage->addPageButton(x, buttonMargin                                  , buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Valves",  menu.getPage(1));
-    // pPage->addPageButton(x, buttonMargin + 1 * (buttonMargin+buttonHeight), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Edit global", menu.getPage(2));
-    pPage->addFunctionButton(x, buttonMargin + 1 * (buttonMargin+buttonHeight), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Edit global", showPageEditGlobalDouble);
-    pPage->addFunctionButton(x, buttonMargin + 1.5 * (buttonMargin+buttonHeight), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Edit globalLong",showPageEditGlobalLong);
+    pPage->addFunctionButton(x, buttonMargin + 1 * (buttonMargin+buttonHeight), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Edit double", showPageEditGlobalDouble);
+    pPage->addFunctionButton(x, buttonMargin + 2 * (buttonMargin+buttonHeight), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Edit long",showPageEditGlobalLong);
     
     
     menu.showPage(0);
     allowMinus = true;
     allowDouble = false;
-    //pPage->addPageButton(x, buttonMargin + 2 * (buttonMargin+buttonHeight), buttonWidth, buttonHeight, TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, "Button nr 3");
 }
 
 #endif

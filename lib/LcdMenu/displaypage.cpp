@@ -30,32 +30,16 @@ void DisplayPage::init(TFT_eSPI *tft, DisplayMenu *menu, uint16_t fillColor)
     _pMenu = menu;
 }
 
-// #define BLACK_SPOT
 
-// // Switch position and size
-// #define FRAME_X 100
-// #define FRAME_Y 64
-// #define FRAME_W 120
-// #define FRAME_H 50
 
-// // Red zone size
-// #define REDBUTTON_X FRAME_X
-// #define REDBUTTON_Y FRAME_Y
-// #define REDBUTTON_W (FRAME_W / 2)
-// #define REDBUTTON_H FRAME_H
-
-// // Green zone size
-// #define GREENBUTTON_X (REDBUTTON_X + REDBUTTON_W)
-// #define GREENBUTTON_Y FRAME_Y
-// #define GREENBUTTON_W (FRAME_W / 2)
-// #define GREENBUTTON_H FRAME_H
-
-bool DisplayPage::addButton(const DisplayButton button)
+DisplayButton *DisplayPage::addButton(const DisplayButton button)
 {
-    return buttons.add(button);
+    if (buttons.add(button))
+        return getLastButton();
+    return NULL;
 }
 
-bool DisplayPage::addPageButton(int16_t x, 
+DisplayButton *DisplayPage::addPageButton(int16_t x, 
                             int16_t y, 
                             uint16_t width,
                             uint16_t height,
@@ -69,10 +53,13 @@ bool DisplayPage::addPageButton(int16_t x,
 {
 
     DisplayButton pageButton(getDisplay(), x, y, width, height, outlineColor, fillColor, textColor, textsize, text, DisplayButtonType::OPEN_PAGE, this, pPageToOpen, NULL);
-    return buttons.add(pageButton);
+    
+    if (buttons.add(pageButton))
+        return getLastButton();
+    return NULL;
 }
 
-bool DisplayPage::addFunctionButton(int16_t x, 
+DisplayButton *DisplayPage::addFunctionButton(int16_t x, 
                             int16_t y, 
                             uint16_t width,
                             uint16_t height,
@@ -86,10 +73,12 @@ bool DisplayPage::addFunctionButton(int16_t x,
 {
 
     DisplayButton functionButton(getDisplay(), x, y, width, height, outlineColor, fillColor, textColor, textsize, text, DisplayButtonType::RUN_FUNCTION, this, NULL, buttonPressedFunction);
-    return buttons.add(functionButton);
+    if (buttons.add(functionButton))
+        return getLastButton();
+    return NULL;
 }
 
-bool DisplayPage::addIncrementButton(   int16_t x,
+DisplayButton *DisplayPage::addIncrementButton(   int16_t x,
                                         int16_t y,
                                         uint16_t width,
                                         uint16_t height,
@@ -104,7 +93,9 @@ bool DisplayPage::addIncrementButton(   int16_t x,
 {
 
     DisplayButton incrementButton(getDisplay(), x, y, width, height, outlineColor, fillColor, textColor, textsize, text, DisplayButtonType::INCREMENT_VALUE, this, pLinkedValue, incrementValue);
-    return buttons.add(incrementButton);
+    if (buttons.add(incrementButton))
+        return getLastButton();
+    return NULL;
 }
 
 void DisplayPage::serialPrintValues(unsigned int margin)
