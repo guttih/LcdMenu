@@ -16,6 +16,8 @@
 
 double globalValueDouble = 123.5;
 double globalValueLong = 123;
+double globalTemperature = 22.97;
+DisplayButton *pTempShowButton = NULL;
 
 bool allowDouble,
     allowMinus;
