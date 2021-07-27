@@ -27,7 +27,7 @@ private:
     OnShowDisplayPage _onShowDisplayPage;
     OnDrawDisplayPage _onDrawDisplayPage;
     void init(TFT_eSPI *tft, DisplayMenu *menu, uint16_t fillColor);
-    bool addButton(const  DisplayButton button);
+    DisplayButton *addButton(const  DisplayButton button);
 
 public:
     /**
@@ -57,10 +57,10 @@ public:
      * @param textsize Button text multiplier size (2 is 100% bigger than normal).
      * @param text Button text
      * @param customDrawFunction 
-     * @return true 
-     * @return false 
+     * @return a pointer to the added button
+     * 
      */
-    bool addFunctionButton(int16_t x, 
+    DisplayButton *addFunctionButton(int16_t x, 
                             int16_t y, 
                             uint16_t width,
                             uint16_t height,
@@ -83,10 +83,9 @@ public:
      * @param textsize Button text multiplier size (2 is 100% bigger than normal).
      * @param text Button text
      * @param pPageToOpen page the button belongs to
-     * @return true if button was added
-     * @return false if the button was NOT added to the page.
+     * @return a pointer to the added button
      */
-    bool addPageButton( int16_t x, 
+    DisplayButton *addPageButton( int16_t x, 
                     int16_t y, 
                     uint16_t width,
                     uint16_t height,
@@ -112,21 +111,20 @@ public:
      * @param text Button text
      * @param pLinkedValue value this button is suppose to change
      * @param incrementValue how munch should be value be incremented in each press
-     * @return true if button was added
-     * @return false if the button was NOT added to the page.
+     * @return a pointer to the added button
      */
-    bool addIncrementButton(    int16_t x,
-                                int16_t y,
-                                uint16_t width,
-                                uint16_t height,
-                                uint16_t outlineColor,
-                                uint16_t fillColor,
-                                uint16_t textColor,
-                                uint8_t textsize, 
-                                const char *text,
-                                double *pLinkedValue,
-                                double incrementValue
-                );
+    DisplayButton *addIncrementButton(  int16_t x,
+                                        int16_t y,
+                                        uint16_t width,
+                                        uint16_t height,
+                                        uint16_t outlineColor,
+                                        uint16_t fillColor,
+                                        uint16_t textColor,
+                                        uint8_t textsize, 
+                                        const char *text,
+                                        double *pLinkedValue,
+                                        double incrementValue
+                                    );
 
     /**
      * @brief Get a pointer to a specific button stored in the page.
@@ -174,11 +172,12 @@ public:
      *     pPage->serialPrintValues();
      * }
      * 
+     
      * void ssetup()
      * {
      *     DisplayPage page1(&tft);
-     *     page1.addCustomDrawFunction(myCustomPageDrawFunc);
-     *     page1.addButton(100, 120, 136, 40, TFT_RED, TFT_PURPLE, TFT_WHITE, 1, "Hello world");
+     *     page1.registerOnDrawEvent(myCustomPageDrawFunc);
+     *     page1.addPageButton(100, 120, 136, 40, TFT_RED, TFT_PURPLE, TFT_WHITE, 1, "Hello world", NULL);
      *     page1.draw();
      * }
      * @endcode 

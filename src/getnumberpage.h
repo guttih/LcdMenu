@@ -17,12 +17,13 @@
 double globalValueDouble = 123.5;
 double globalValueLong = 123;
 
-bool allowDouble, 
-     allowMinus;
+bool allowDouble,
+    allowMinus;
 
 //want full precision but no ending zeros and no ending dot
-String removeUnNecessaryDoubleEnding(String str){
-    
+String removeUnNecessaryDoubleEnding(String str)
+{
+
     if (str.indexOf('.') > -1)
     {
         int len = str.length();
@@ -39,7 +40,8 @@ String removeUnNecessaryDoubleEnding(String str){
     return str;
 }
 
-String toString(double num) {
+String toString(double num)
+{
     char output[50];
 
     snprintf(output, 50, "%.9f", num);
@@ -47,7 +49,7 @@ String toString(double num) {
 }
 
 /**
- * @brief checks and converts a string to a double double
+ * @brief checks if a string can be converted to and from a double number, resulting in the exactly the same string
  * 
  * @param str a string to be tested and remove un necessary endings like 0 and .
  * @return String if success a string which can be converted to double and if fail an empty string:
@@ -56,8 +58,8 @@ String convertToDoubleAndBackToSameString(String str)
 {
     double d = str.toDouble();
     int dotPos = str.indexOf('.');
-    int fractionLength = dotPos < 0? 0: str.length() - (dotPos + 1);
-    String diffString = String(d,fractionLength);
+    int fractionLength = dotPos < 0 ? 0 : str.length() - (dotPos + 1);
+    String diffString = String(d, fractionLength);
 
     diffString = removeUnNecessaryDoubleEnding(diffString);
 
@@ -67,29 +69,28 @@ String convertToDoubleAndBackToSameString(String str)
         return "";
 }
 
-void onShowEditValuePage (DisplayPage *pPage) {
+void onShowEditValuePage(DisplayPage *pPage)
+{
     DisplayButton *btn;
-    
+
     //Hide or show dot button
     btn = pPage->getButtonByText(".");
-    btn->setState(allowDouble? VISABLE : HIDDEN);
+    
+    btn->setState(allowDouble ? VISABLE : HIDDEN);
 
     //Hide or show minus button
     btn = pPage->getButtonByText("-");
-    btn->setState(allowMinus? VISABLE : HIDDEN);
-
+    btn->setState(allowMinus ? VISABLE : HIDDEN);
     DisplayButton *btnValue = pPage->getLastButton();
 
     btnValue->setText(toString(*btnValue->getLinkedValue()));
-
 }
 
-void onDrawEditValuePage (DisplayPage *pPage) {
+void onDrawEditValuePage(DisplayPage *pPage)
+{
     DisplayButton *btnValue = pPage->getLastButton();
     pPage->getDisplay()->drawString(btnValue->getLinkedValueName(), 12, 44);
-
     btnValue->draw();
-
 }
 
 void pageEditKeyPressed(DisplayButton *btn)
@@ -113,7 +114,7 @@ void pageEditKeyPressed(DisplayButton *btn)
     case 'O': //OK
         if (valueButton->getLinkedValue())
         {
-             newStr = convertToDoubleAndBackToSameString(currentValue);
+            newStr = convertToDoubleAndBackToSameString(currentValue);
             double newVal = newStr.toDouble();
             *(valueButton->getLinkedValue()) = newVal;
         }
@@ -128,15 +129,19 @@ void pageEditKeyPressed(DisplayButton *btn)
         break;
 
     case 'R': //Reset
-            valueButton->setText("0");
+        valueButton->setText("0");
         break;
 
     case '-':
-        if (currentValue.startsWith("-")) {
+        if (currentValue.startsWith("-"))
+        {
             currentValue.remove(0, 1);
-        } else {
+        }
+        else
+        {
             // no negative sign at beginning
-            if (currentLength > 0 && currentValue != "0") {
+            if (currentLength > 0 && currentValue != "0")
+            {
                 currentValue = String('-') + currentValue;
             }
         }
@@ -179,7 +184,7 @@ void pageEditKeyPressed(DisplayButton *btn)
     case 'D': //delete
 
         if (currentLength > 1)
-        {   
+        {
             currentValue.remove(currentLength - 1, 1);
             valueButton->setText(currentValue);
         }
@@ -196,12 +201,9 @@ void pageEditKeyPressed(DisplayButton *btn)
 void addPageEditValue(DisplayMenu *pMenu)
 {
     DisplayPage *pPage = pMenu->addPage();
-
     const int rowCount = 4;
     const int colCount = 4;
-
     const int keyCount = (rowCount * colCount);
-
     char keys[keyCount][7] = {
         "7", "8", "9", "Delete",
         "4", "5", "6", "Reset",
@@ -209,43 +211,37 @@ void addPageEditValue(DisplayMenu *pMenu)
         "0", ".", "-", "OK"};
 
     uint16_t commandColors[rowCount] = {
-        //Delete,  Reset,     Cancel,  OK,            
-        TFT_BROWN, TFT_BROWN, TFT_RED, TFT_DARKGREEN };
+        //Delete,  Reset,     Cancel,  OK,
+        TFT_BROWN, TFT_BROWN, TFT_RED, TFT_DARKGREEN};
 
-    struct COMMAND_BUTTON {
+    struct COMMAND_BUTTON
+    {
         char text[3];
         uint16_t fillColor;
     };
 
-    const uint16_t  TFT_BUTTON_OUTLINE = tft.color565(115, 149, 125),
-                    TFT_BUTTON_FILL = tft.color565(48, 73, 47),
-                    TFT_BUTTON_TEXT = TFT_GOLD;
-    
-    const int   buttonWidth = 50,
-                buttonHeight = 39,
-                buttonMarginX = 10,
-                buttonMarginY = 68,
-                buttonPaddingX = 5,
-                buttonPaddingY = 5,
-                buttonCmdWidth = 130,
-                buttonCmdMarginX = 180;
+    const uint16_t TFT_BUTTON_OUTLINE = tft.color565(115, 149, 125),
+                   TFT_BUTTON_FILL = tft.color565(48, 73, 47),
+                   TFT_BUTTON_TEXT = TFT_GOLD;
 
-    //bool addZero, addDot, addMinus;
+    const int buttonWidth = 50,
+              buttonHeight = 39,
+              buttonMarginX = 10,
+              buttonMarginY = 68,
+              buttonPaddingX = 5,
+              buttonPaddingY = 5,
+              buttonCmdWidth = 130,
+              buttonCmdMarginX = 180;
 
     int col, row = 0;
     for (int x = 0; x < keyCount; x++)
     {
         col = x % colCount;
-        // addZero  = col == 0 && row==3 && allowMinus;
-        // addDot   = col == 1 && row==3 && allowDouble;
-        // addMinus = col == 2 && row==3 && allowMinus;
         if (col < (colCount - 1))
         {
-            //if (row !=3 || addZero || addDot || addMinus ) {
-                pPage->addFunctionButton(buttonMarginX + (col * (buttonPaddingX + buttonWidth)), buttonMarginY + (row * (buttonHeight + buttonPaddingY)),
-                                         buttonWidth, buttonHeight,
-                                         TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, keys[x], pageEditKeyPressed);
-            //}
+            pPage->addFunctionButton(buttonMarginX + (col * (buttonPaddingX + buttonWidth)), buttonMarginY + (row * (buttonHeight + buttonPaddingY)),
+                                     buttonWidth, buttonHeight,
+                                     TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, keys[x], pageEditKeyPressed);
         }
         else
         {   //Command buttons
@@ -256,20 +252,12 @@ void addPageEditValue(DisplayMenu *pMenu)
             row++;
     }
 
-    //pPage->addFunctionButton(10, 1, 300, buttonHeight, TFT_BUTTON_OUTLINE , pPage->getDisplay()->color565(25, 25, 25), TFT_BUTTON_TEXT, 1, String(globalValueDouble).c_str(), NULL);
-    pPage->addFunctionButton(10, 1, 300, buttonHeight, TFT_BUTTON_OUTLINE , pPage->getDisplay()->color565(25, 25, 25), TFT_BUTTON_TEXT, 1, "0", NULL);
-    
-    
-    DisplayButton *btn = pPage->getLastButton();
+    //the input display at top of the screen
+     DisplayButton *btn = pPage->addFunctionButton(10, 1, 300, buttonHeight, TFT_BUTTON_OUTLINE, pPage->getDisplay()->color565(25, 25, 25), TFT_BUTTON_TEXT, 1, "0", NULL);
+
     btn->setPageToOpen(pPage->getMenu()->getPage(0));
-    //btn->linkToValue(&globalValueDouble, "Global value");
-    btn->setDatum(MR_DATUM, 140,3);
-    btn->serialPrintValues();
-    
+    btn->setDatum(MR_DATUM, 140, 3);
     pPage->registerOnDrawEvent(onDrawEditValuePage);
     pPage->registerOnShowEvent(onShowEditValuePage);
-    
-
-    
 }
 #endif
