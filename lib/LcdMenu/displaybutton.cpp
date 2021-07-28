@@ -1,5 +1,5 @@
-#include "displaybutton.h"
-#include "displaymenu.h"
+#include "DisplayButton.h"
+#include "DisplayMenu.h"
 
 DisplayButton::DisplayButton(   TFT_eSPI *tft,
                                 int16_t x,

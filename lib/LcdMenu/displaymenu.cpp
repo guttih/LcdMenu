@@ -1,4 +1,4 @@
-#include "displaymenu.h"
+#include "DisplayMenu.h"
 
 DisplayMenu::DisplayMenu(TFT_eSPI *tft, uint16_t fillColor)
 {
