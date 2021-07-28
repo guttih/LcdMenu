@@ -8,8 +8,8 @@
 
 #include <TFT_eSPI.h> // Hardware-specific library
 
-#include "displaybutton.h"
-#include "displaybuttonlist.h"
+#include "DisplayButton.h"
+#include "DisplayButtonList.h"
 
 class DisplayMenu;
 

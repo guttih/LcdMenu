@@ -13,9 +13,9 @@
 
 #include <Arduino.h>
 #include "globals.h"
-#include "displaymenu.h"
-#include "displaypage.h"
-#include "displaybutton.h"
+#include "DisplayMenu.h"
+#include "DisplayPage.h"
+#include "DisplayButton.h"
 #include "getnumberpage.h"
 
 const uint16_t TFT_BUTTON_OUTLINE = tft.color565(115, 149, 125);

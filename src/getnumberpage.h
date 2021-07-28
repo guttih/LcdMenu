@@ -12,7 +12,7 @@
 #ifndef GETNUMBERPAGEH
 #define GETNUMBERPAGEH
 
-#include "displaymenu.h"
+#include "DisplayMenu.h"
 
 double globalValueDouble = 123.5;
 double globalValueLong = 123;

@@ -2,8 +2,8 @@
 #define DISPLAYBUTTONLIST_H
 
 
-#include "linkedlist.h"
-#include "displaybutton.h"
+#include "LinkedList.h"
+#include "DisplayButton.h"
 
 class DisplayButtonList : public LinkedList<DisplayButton*> {
 

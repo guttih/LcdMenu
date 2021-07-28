@@ -12,7 +12,7 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#include <displaymenu.h>
+#include <DisplayMenu.h>
 
 #include "FS.h"
 

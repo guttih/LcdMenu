@@ -6,8 +6,8 @@
 #include <SPI.h>
 #include <TFT_eSPI.h> // Hardware-specific library
 
-#include "displaypage.h"
-#include "displaypagelist.h"
+#include "DisplayPage.h"
+#include "DisplayPageList.h"
 
 struct TOUCHED_STRUCT {
     uint16_t x;

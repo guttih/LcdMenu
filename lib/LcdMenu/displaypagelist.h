@@ -1,8 +1,8 @@
 #ifndef DISPLAYPAGELIST_H
 #define DISPLAYPAGELIST_H
 
-#include "linkedlist.h"
-#include "displaypage.h"
+#include "LinkedList.h"
+#include "DisplayPage.h"
 
 class DisplayPageList : public LinkedList<DisplayPage *>
 {
