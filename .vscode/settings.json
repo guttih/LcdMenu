@@ -16,6 +16,7 @@
         "utility": "cpp",
         "random": "cpp",
         "sstream": "cpp",
-        "type_traits": "cpp"
+        "type_traits": "cpp",
+        "*.cppold": "cpp"
     }
 }

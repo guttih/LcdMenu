@@ -39,6 +39,13 @@ DisplayButton *DisplayPage::addButton(const DisplayButton button)
     return NULL;
 }
 
+DisplayLabel *DisplayPage::addLabel(const DisplayLabel label)
+{
+    if (labels.add(label))
+        return getLastLabel();
+    return NULL;
+}
+
 DisplayButton *DisplayPage::addPageButton(int16_t x, 
                             int16_t y, 
                             uint16_t width,
@@ -98,6 +105,22 @@ DisplayButton *DisplayPage::addIncrementButton(   int16_t x,
     return NULL;
 }
 
+DisplayLabel *DisplayPage::addPageLabel(int16_t x,
+                                         int16_t y,
+                                         uint16_t width,
+                                         uint16_t height,
+                                         uint16_t outlineColor,
+                                         uint16_t fillColor,
+                                         uint16_t textColor,
+                                         uint8_t textsize,
+                                         const char *text)
+{
+    DisplayLabel pageLabel(getDisplay(), x, y, width, height, outlineColor, fillColor, textColor, textsize, text, this);
+        if (labels.add(pageLabel))
+        return getLastLabel();
+    return NULL;
+}
+
 void DisplayPage::serialPrintValues(unsigned int margin)
 {
 
@@ -121,12 +144,23 @@ void DisplayPage::serialPrintValues(unsigned int margin)
 
 void DisplayPage::drawButtons()
 {
-    int buttonCount = this->buttonCount();
-    for (int i = 0; i < buttonCount; i++)
+    int count = buttonCount();
+    for (int i = 0; i < count; i++)
     {
         DisplayButton *btn = buttons.get(i);
         btn->resetPressState();
         btn->draw();
+    }
+}
+
+void DisplayPage::drawLabels()
+{
+    int count = labelCount();
+    for (int i = 0; i < count; i++)
+    {
+        DisplayLabel *lbl = labels.get(i);
+        lbl->resetPressState();
+        lbl->draw();
     }
 }
 
@@ -140,6 +174,7 @@ void DisplayPage::draw(bool wipeScreen) {
     }
 
     _tft->setFreeFont(&FreeMonoBold9pt7b); 
+    drawLabels();
     drawButtons();
 }
 
@@ -185,6 +220,15 @@ DisplayButton *DisplayPage::getLastButton()
         return NULL;
 
     return buttons.get(size - 1);
+}
+
+DisplayLabel *DisplayPage::getLastLabel()
+{
+    int size = labels.size();
+    if (size < 1)
+        return NULL;
+
+    return labels.get(size - 1);
 }
 
 // todo:remove is this function needed???

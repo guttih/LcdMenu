@@ -9,7 +9,26 @@
 
 #include <TFT_eSPI.h> // Hardware-specific library
 
-#include "globals.h"
+/**
+ * @brief Global variables in the program
+ * 
+ */
+struct GLOBAL_STRUCT {
+    double temperature = 0;   // Current temperature read from the Temperature sensor.
+    double desiredTemp = 24;  // The desired temperature which should be fed as the setpoint to the PID controller.
+    double coldValveFlow = 12.34; // A number from 0 to 100 describing the opening of the COLD valve, 0 is fully closed and 100 fully open.
+    double hotValveFlow = 56.78;  // A number from 0 to 100 describing the opening of the HOT  valve, 0 is fully closed and 100 fully open.
+} values;
+
+
+#define CALIBRATION_FILE "/TouchCalData3"
+
+#define REPEAT_CAL true
+
+TFT_eSPI tft = TFT_eSPI();
+
+
+DisplayMenu menu = DisplayMenu(&tft);
 
 void touch_calibrate();
 void setupMenu();

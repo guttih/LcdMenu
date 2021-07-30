@@ -1,16 +1,15 @@
 /**
- * @file getnumberpage.h
+ * @file editpagesetup.h
  * @author guttih (gudjonholm@gmail.com)
  * @brief Creates a page that can modify a number
- * @version 0.1
- * @date 2021-07-24
+ * @date 2021-07-30
  * 
  * @copyright Copyright (c) 2021
  * 
  */
 
-#ifndef GETNUMBERPAGEH
-#define GETNUMBERPAGEH
+#ifndef EDITPAGESETUPH
+#define EDITPAGESETUPH
 
 #include "DisplayMenu.h"
 
@@ -77,7 +76,7 @@ void onShowEditValuePage(DisplayPage *pPage)
 
     //Hide or show dot button
     btn = pPage->getButtonByText(".");
-    
+
     btn->setState(allowDouble ? VISABLE : HIDDEN);
 
     //Hide or show minus button
@@ -246,7 +245,7 @@ void addPageEditValue(DisplayMenu *pMenu)
                                      TFT_BUTTON_OUTLINE, TFT_BUTTON_FILL, TFT_BUTTON_TEXT, 1, keys[x], pageEditKeyPressed);
         }
         else
-        {   //Command buttons
+        { //Command buttons
             pPage->addFunctionButton(buttonCmdMarginX, buttonMarginY + (row * (buttonHeight + buttonPaddingY)), buttonCmdWidth, buttonHeight, TFT_BUTTON_OUTLINE, commandColors[row], TFT_BUTTON_TEXT, 1, keys[x], pageEditKeyPressed);
         }
 
@@ -255,7 +254,7 @@ void addPageEditValue(DisplayMenu *pMenu)
     }
 
     //the input display at top of the screen
-     DisplayButton *btn = pPage->addFunctionButton(10, 1, 300, buttonHeight, TFT_BUTTON_OUTLINE, pPage->getDisplay()->color565(25, 25, 25), TFT_BUTTON_TEXT, 1, "0", NULL);
+    DisplayButton *btn = pPage->addFunctionButton(10, 1, 300, buttonHeight, TFT_BUTTON_OUTLINE, pPage->getDisplay()->color565(25, 25, 25), TFT_BUTTON_TEXT, 1, "0", NULL);
 
     btn->setPageToOpen(pPage->getMenu()->getPage(0));
     btn->setDatum(MR_DATUM, 140, 3);

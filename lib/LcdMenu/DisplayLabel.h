@@ -1,5 +1,5 @@
-#ifndef DISPLAYBUTTON_H
-#define DISPLAYBUTTON_H
+#ifndef DISPLAYLABEL_H
+#define DISPLAYLABEL_H
 
 #include "arduino.h"
 
@@ -11,24 +11,13 @@
 
 #include "DisplayGlobals.h"
 
-class DisplayButton;
+class DisplayLabel;
 
-typedef void (*ButtonPressedFunction) (DisplayButton *ptrButton);
-typedef void (*OnDrawDisplayButton) (DisplayButton *ptrButton);
-
-/**
- * @brief DisplayButton type enumeration which holds information on how the button behaves when it is pressed.
- * 
- */
-enum DisplayButtonType {
-    RUN_FUNCTION,
-    OPEN_PAGE, 
-    INCREMENT_VALUE
-};
+typedef void (*OnDrawDisplayLabel) (DisplayLabel *ptrLabel);
 
 class DisplayPage;
 
-struct DISPLAY_BUTTON_VALUES {
+struct DISPLAY_LABEL_VALUES {
     TFT_eSPI *tft;
     int16_t x;
     int16_t y; 
@@ -43,20 +32,15 @@ struct DISPLAY_BUTTON_VALUES {
     uint8_t textDatum;
     uint8_t radius;
     String text;
-    bool allowOnlyOneButtonPressedAtATime;
-
-    DisplayButtonType type;
     DisplayState state;
     DisplayPage *pPage;
     double *pLinkedValue;
     String linkedValueName;
     double incrementValue;
-    DisplayPage *pPageToOpen;
-    ButtonPressedFunction buttonPressedFunction;
-    OnDrawDisplayButton onDrawDisplayButton;
+    OnDrawDisplayLabel onDrawDisplayLabel;
 }; 
 
-class DisplayButton
+class DisplayLabel
 {
 private:
     double _dTemp;
@@ -70,14 +54,11 @@ private:
                 uint16_t textColor,
                 uint8_t textsize,
                 const char *text,
-                DisplayButtonType type,
                 DisplayState state,
                 DisplayPage *page,
                 String linkedValueName,
                 double *pLinkedValue,
-                double incrementValue,
-                DisplayPage *pageToOpen,
-                ButtonPressedFunction buttonPressedFunction
+                double incrementValue
                 );
 public:
     bool  _currentState, 
@@ -88,18 +69,16 @@ public:
     
     double *getLinkedValue() { return _values.pLinkedValue; };
     String getLinkedValueName() { return _values.linkedValueName; };
-    void setPageToOpen(DisplayPage *pageToOpen) { _values.pPageToOpen = pageToOpen; };
-    DisplayPage *getPageToOpen() { return _values.pPageToOpen; };
     void setDatum(uint8_t textDatum, int16_t xDatumOffset, int16_t yDatumOffset) { _values.textDatum = textDatum; _values.xDatumOffset = xDatumOffset; _values.yDatumOffset = yDatumOffset; };
     void setState(DisplayState state) { _values.state = state; };
     void show() { _values.state = DisplayState::VISABLE; };
     void hide() { _values.state = DisplayState::HIDDEN; };
-    DISPLAY_BUTTON_VALUES _values;
-    DISPLAY_BUTTON_VALUES getValues() { return _values; };
+    DISPLAY_LABEL_VALUES _values;
+    DISPLAY_LABEL_VALUES getValues() { return _values; };
 
-    DisplayButton(const DisplayButton &button);
+    DisplayLabel(const DisplayLabel &label);
     
-    DisplayButton(  TFT_eSPI *tft, 
+    DisplayLabel(  TFT_eSPI *tft, 
                     int16_t x, 
                     int16_t y, 
                     uint16_t width,
@@ -109,13 +88,10 @@ public:
                     uint16_t textColor,
                     uint8_t textsize,
                     const char *text,
-                    DisplayButtonType type,
-                    DisplayPage *page,
-                    DisplayPage *pPageToOpen,
-                    ButtonPressedFunction buttonPressed
+                    DisplayPage *page
                     );
 
-    DisplayButton(  TFT_eSPI *tft,
+    DisplayLabel(  TFT_eSPI *tft,
                     int16_t x,
                     int16_t y,
                     uint16_t width,
@@ -125,7 +101,6 @@ public:
                     uint16_t textColor,
                     uint8_t textsize, 
                     const char *text,
-                    DisplayButtonType type,
                     DisplayPage *page,
                     double *pLinkedValue,
                     double incrementValue
@@ -140,18 +115,12 @@ public:
      * Node if you need more speed this variable should be false;
      */
     void draw(bool inverted=false,  bool checkIfPageIsVisable = true);
-    void registerOnDrawEvent(OnDrawDisplayButton pOnDrawDisplayButton) {
-        _values.onDrawDisplayButton = pOnDrawDisplayButton;
+    void registerOnDrawEvent(OnDrawDisplayLabel pOnDrawDisplayLabel) {
+        _values.onDrawDisplayLabel = pOnDrawDisplayLabel;
     }
-    bool contains(int16_t x, int16_t y);
 
     void serialPrintValues(unsigned int margin=0);
 
-    void press(bool isPressed);
-    bool isPressed();
-    bool justPressed();
-    bool justReleased();
-    bool executeCommand();
     DisplayPage *getPage() { return _values.pPage; }
 };
 

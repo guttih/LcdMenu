@@ -8,6 +8,8 @@
 
 #include <TFT_eSPI.h> // Hardware-specific library
 
+#include "DisplayLabel.h"
+#include "DisplayLabelList.h"
 #include "DisplayButton.h"
 #include "DisplayButtonList.h"
 
@@ -24,10 +26,12 @@ private:
     DisplayMenu *_pMenu;
     uint16_t _fillColor;
     DisplayButtonList buttons;
+    DisplayLabelList labels;
     OnShowDisplayPage _onShowDisplayPage;
     OnDrawDisplayPage _onDrawDisplayPage;
     void init(TFT_eSPI *tft, DisplayMenu *menu, uint16_t fillColor);
     DisplayButton *addButton(const  DisplayButton button);
+    DisplayLabel *addLabel(const  DisplayLabel label);
 
 public:
     /**
@@ -126,6 +130,16 @@ public:
                                         double incrementValue
                                     );
 
+
+    DisplayLabel *addPageLabel(int16_t x, 
+                                int16_t y, 
+                                uint16_t width,
+                                uint16_t height,
+                                uint16_t outlineColor,
+                                uint16_t fillColor,
+                                uint16_t textColor,
+                                uint8_t textsize, 
+                                const char *text);
     /**
      * @brief Get a pointer to a specific button stored in the page.
      * 
@@ -144,7 +158,9 @@ public:
     DisplayButton *getButtonByText(String text) { return buttons.findButtonByText(text); }
 
     int buttonCount() { return buttons.count(); } ;
+    int labelCount() { return labels.count(); } ;
     void drawButtons();
+    void drawLabels();
     void show();
     void draw(bool wipeScreen = true);
 
@@ -158,6 +174,7 @@ public:
     uint16_t getFillColor() { return _fillColor; };
 
     DisplayButton * getLastButton();
+    DisplayLabel *getLastLabel();
 
     /**
      * @brief Provies a user defined function to  be called every time before the page should be drawn.
